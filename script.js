@@ -1,1 +1,453 @@
+const QUESTIONS = [
+  ["下水道醒来", "你被井盖缝里漏下来的阳光晃醒。今天第一反应是：", [
+    ["列个清单，今天至少别白活", { DO: 2, SAFE: 1 }],
+    ["先刷会儿人类短视频，等灵感上线", { AVOID: 2, DRAMA: 1 }],
+    ["对着天花板感慨命运，然后再说", { DRAMA: 2, DO: -1 }]
+  ]],
+  ["下水道醒来", "你闻到三种味道：炸鸡、咖啡、消毒水。你会：", [
+    ["先判断哪条路线最安全，小命要紧", { SAFE: 2, DO: 1 }],
+    ["跟着最香的走，机不可失嘿嘿", { DRAMA: 1, SAFE: -1, DO: 1 }],
+    ["还是再等等，静观其变", { AVOID: 2, DO: -1 }]
+  ]],
+  ["下水道醒来", "路过水洼看到自己倒影，你会：", [
+    ["整理毛发，体面是基本盘", { MASK: 2, SAFE: 1 }],
+    ["自拍一张发朋友圈文案‘今日营业’", { MASK: 1, SOCIAL: 1, DRAMA: 1 }],
+    ["把脸糊脏一点，低调才能活得久，苯熊还是个孩子", { SAFE: 2, MASK: -1 }]
+  ]],
+  ["觅食时段", "第一站是便利店后门，垃圾袋已上线。你会：", [
+    ["按老规矩挑高热量、低风险", { SAFE: 2, DO: 1 }],
+    ["今天想吃点新鲜的，赌网红店后厨", { DRAMA: 1, SAFE: -1 }],
+    ["拍照研究别的浣熊怎么吃，先不下手", { AVOID: 2, DO: -1 }]
+  ]],
+  ["觅食时段", "你发现一块完整三明治，同时听到脚步声。你会：", [
+    ["秒叼就跑，执行大于犹豫", { DO: 2, SAFE: 1 }],
+    ["先确认监控角度，再幽幽揣走，这叫智取", { MASK: 1, SAFE: 2 }],
+    ["放弃这口，告诉自己‘我值得更好的’", { DRAMA: 2, AVOID: 1 }]
+  ]],
+  ["觅食时段", "吃到一半，另一只浣熊盯着你看。你会：", [
+    ["分他一点，做人留一线", { SOCIAL: 2, SAFE: 1 }],
+    ["先聊两句试探，再决定分不分", { SOCIAL: 1, MASK: 1 }],
+    ["护食后退，熊熊心力有限，避免复杂关系", { SAFE: 1, SOCIAL: -1, AVOID: 1 }]
+  ]],
+  ["街区社交", "老友邀你加入‘今晚整活小队’。你会：", [
+    ["冲！人多事就有戏", { SOCIAL: 2, DRAMA: 1 }],
+    ["看成员名单再决定，熊熊还是三思", { SAFE: 2, MASK: 1 }],
+    ["已读不回，保持神秘嘿嘿", { AVOID: 2, MASK: 1, SOCIAL: -1 }]
+  ]],
+  ["街区社交", "群里讨论路线吵起来了。你通常：", [
+    ["出来定调，直接拍板", { DO: 2, SOCIAL: 1 }],
+    ["发个‘都可以’维持和气", { MASK: 1, AVOID: 1 }],
+    ["围观并收藏金句", { AVOID: 2, DRAMA: 1 }]
+  ]],
+  ["街区社交", "路边碰见流浪猫，对方气场很强。你会：", [
+    ["主动打招呼，拓展关系网", { SOCIAL: 2, MASK: 1 }],
+    ["礼貌点头，各走各路", { SAFE: 1, MASK: 1 }],
+    ["脑补一段宿命对手戏，又看一集", { DRAMA: 2, DO: -1 }]
+  ]],
+  ["公园职业发展", "你听说公园垃圾桶要‘区域承包’。你会：", [
+    ["立刻踩点，做资源地图", { DO: 2, SAFE: 1 }],
+    ["先找关系，问问内幕", { SOCIAL: 2, MASK: 1 }],
+    ["先观望，等风向明确", { SAFE: 1, AVOID: 1 }]
+  ]],
+  ["公园职业发展", "队友提议‘搞个品牌：城市清道夫’。你会：", [
+    ["同意，名字要响，人设要稳", { MASK: 2, SOCIAL: 1 }],
+    ["先算收益，不做无效包装", { SAFE: 2, DO: 1 }],
+    ["这太离谱了，但苯熊有点想试", { DRAMA: 2, DO: 1 }]
+  ]],
+  ["公园职业发展", "试运营第一天，效果一般。你倾向：", [
+    ["复盘问题，明天优化", { DO: 2, SAFE: 1 }],
+    ["发条动态：我们在路上", { MASK: 2, DRAMA: 1 }],
+    ["安慰自己‘世界配不上我的才华’", { DRAMA: 2, AVOID: 1 }]
+  ]],
+  ["感情支线", "路灯下你遇到一只很会说话的浣熊。你会：", [
+    ["主动搭话，先认识再说", { SOCIAL: 2, DRAMA: 1 }],
+    ["保持礼貌距离，观察稳定性", { SAFE: 2, MASK: 1 }],
+    ["表面平静，内心写了三段独白", { DRAMA: 2, AVOID: 1 }]
+  ]],
+  ["感情支线", "对方问你‘你到底在想什么’。你会：", [
+    ["坦白：我现在有点慌但想靠近", { DO: 1, SOCIAL: 1, MASK: -1 }],
+    ["回个玩笑，轻轻带过", { MASK: 2, AVOID: 1 }],
+    ["转移话题聊天气和垃圾分类", { AVOID: 2, SAFE: 1 }]
+  ]],
+  ["感情支线", "分别时，对方说‘改天见’。你会：", [
+    ["当晚发消息，明确下一次", { DO: 2, SOCIAL: 1 }],
+    ["等对方先联系，保留体面", { MASK: 2, SAFE: 1 }],
+    ["先写小作文，不发送", { DRAMA: 2, AVOID: 2 }]
+  ]],
+  ["自我娱乐", "夜深了，你打开人类论坛。第一反应：", [
+    ["搜索‘如何一年改变命运’", { DO: 1, DRAMA: 1 }],
+    ["看别人吵架并点赞高赞阴阳", { AVOID: 1, DRAMA: 2 }],
+    ["收藏十篇干货，明天开始", { AVOID: 2, DO: -1 }]
+  ]],
+  ["自我娱乐", "朋友发来‘来打游戏’。你会：", [
+    ["走，今晚只求开心", { SOCIAL: 2, DRAMA: 1 }],
+    ["先把手头事做完再玩", { DO: 2, SAFE: 1 }],
+    ["说太忙了，然后继续刷帖子", { AVOID: 2, MASK: 1 }]
+  ]],
+  ["自我娱乐", "你突然想学新技能（开锁/跑酷/烹饪）。你会：", [
+    ["立刻找教程练20分钟", { DO: 2 }],
+    ["先买装备，仪式感到位", { MASK: 1, DRAMA: 1, DO: -1 }],
+    ["想象学会后的高光场面", { DRAMA: 2, AVOID: 1 }]
+  ]],
+  ["危机追逐", "你被手电照到，保安开始追。你会：", [
+    ["按预设路线撤离", { SAFE: 2, DO: 1 }],
+    ["临场走位，见缝插针", { DRAMA: 1, DO: 1, SAFE: -1 }],
+    ["先躲进灌木，等等再说", { AVOID: 2, SAFE: 1 }]
+  ]],
+  ["危机追逐", "队友摔了一跤，回头救不救？", [
+    ["回头拉他一把", { SOCIAL: 2, DO: 1 }],
+    ["先确保自己安全再接应", { SAFE: 2, DO: 1 }],
+    ["默念‘各安天命’", { AVOID: 2, MASK: 1, SOCIAL: -1 }]
+  ]],
+  ["危机追逐", "安全后大家复盘，你会：", [
+    ["整理问题，制定下次方案", { DO: 2, SAFE: 1 }],
+    ["讲成传奇故事，提升士气", { DRAMA: 2, SOCIAL: 1 }],
+    ["说‘都过去了’，拒绝复盘", { AVOID: 2 }]
+  ]],
+  ["天亮前总结", "凌晨四点，你准备写‘今日总结’。你会：", [
+    ["写三条做得好的、两条要改的", { DO: 2, SAFE: 1 }],
+    ["发一条朦胧状态文案", { MASK: 1, DRAMA: 2 }],
+    ["想了很久，最后只发了个句号", { AVOID: 2, DRAMA: 1 }]
+  ]],
+  ["天亮前总结", "明天最想改变的一件事是：", [
+    ["少想一点，先做一点", { DO: 2, AVOID: -1 }],
+    ["把关系维护得更体面", { MASK: 2, SOCIAL: 1 }],
+    ["希望命运自己好起来", { AVOID: 2, DRAMA: 1 }]
+  ]],
+  ["天亮前总结", "你躺回纸箱前，给今天下定义：", [
+    ["普通但有推进的一天", { SAFE: 1, DO: 1 }],
+    ["像电影，有遗憾也有高光", { DRAMA: 2 }],
+    ["我不知道，但先睡吧", { AVOID: 2, SAFE: 1 }]
+  ]]
+];
+
+const DIMS = ["MASK", "SAFE", "SOCIAL", "AVOID", "DRAMA", "DO"];
+
+const TITLE_MAP = {
+  "MASK+SAFE": "体面生存架构师",
+  "MASK+AVOID": "战术性失踪总监",
+  "MASK+DRAMA": "精致崩溃艺术家",
+  "SAFE+DO": "稳健推进工程师",
+  "SAFE+AVOID": "风险规避型观察员",
+  "SAFE+SOCIAL": "礼貌联盟协调员",
+  "SOCIAL+DRAMA": "夜间气氛组组长",
+  "SOCIAL+DO": "行动派社交发动机",
+  "SOCIAL+AVOID": "间歇性热闹选手",
+  "DRAMA+AVOID": "浪漫废墟建筑师",
+  "DRAMA+DO": "理想主义执行官",
+  "AVOID+DO": "最后一刻逆袭者"
+};
+
+const SUB_TITLES = [
+  { when: s => s.MASK >= 10, text: "人设维护大师" },
+  { when: s => s.SAFE >= 10, text: "稳字当头派" },
+  { when: s => s.SOCIAL >= 10, text: "人类Wi-Fi浣熊版" },
+  { when: s => s.AVOID >= 10, text: "明日再议委员会" },
+  { when: s => s.DRAMA >= 10, text: "情绪电影导演" },
+  { when: s => s.DO >= 10, text: "先做再说执行者" },
+  { when: s => s.DO <= 2 && s.AVOID >= 8, text: "计划表收藏家" },
+  { when: s => s.SOCIAL <= 2 && s.MASK >= 8, text: "礼貌潜水艇" }
+];
+
+const state = { index: 0, answers: new Array(QUESTIONS.length).fill(null) };
+
+const qs = {
+  start: document.getElementById("start-screen"),
+  quiz: document.getElementById("quiz-screen"),
+  result: document.getElementById("result-screen"),
+  startBtn: document.getElementById("start-btn"),
+  prevBtn: document.getElementById("prev-btn"),
+  nextBtn: document.getElementById("next-btn"),
+  copyBtn: document.getElementById("copy-btn"),
+  restartBtn: document.getElementById("restart-btn"),
+  progressCurrent: document.getElementById("progress-current"),
+  progressTotal: document.getElementById("progress-total"),
+  progressFill: document.getElementById("progress-fill"),
+  scenePill: document.getElementById("scene-pill"),
+  qTitle: document.getElementById("question-title"),
+  qText: document.getElementById("question-text"),
+  options: document.getElementById("options"),
+  endpointInput: document.getElementById("endpoint-input"),
+  saveEndpointBtn: document.getElementById("save-endpoint-btn"),
+  modelInput: document.getElementById("model-input"),
+  aiGenerateBtn: document.getElementById("ai-generate-btn"),
+  aiStatus: document.getElementById("ai-status")
+};
+
+function getSavedEndpoint() {
+  return localStorage.getItem("ai_proxy_endpoint") || "/api/report";
+}
+
+function setStatus(text) {
+  qs.aiStatus.textContent = text;
+}
+
+function show(screen) {
+  [qs.start, qs.quiz, qs.result].forEach(s => s.classList.remove("active"));
+  screen.classList.add("active");
+}
+
+function renderQuestion() {
+  const idx = state.index;
+  const [scene, text, options] = QUESTIONS[idx];
+  qs.progressCurrent.textContent = idx + 1;
+  qs.progressTotal.textContent = QUESTIONS.length;
+  qs.progressFill.style.width = `${((idx + 1) / QUESTIONS.length) * 100}%`;
+  qs.scenePill.textContent = scene;
+  qs.qTitle.textContent = `第 ${idx + 1} 题`;
+  qs.qText.textContent = text;
+  qs.options.innerHTML = "";
+
+  options.forEach((op, i) => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    if (state.answers[idx] === i) btn.classList.add("active");
+    btn.textContent = `${String.fromCharCode(65 + i)}. ${op[0]}`;
+    btn.onclick = () => {
+      state.answers[idx] = i;
+      renderQuestion();
+    };
+    qs.options.appendChild(btn);
+  });
+
+  qs.prevBtn.disabled = idx === 0;
+  qs.nextBtn.disabled = state.answers[idx] === null;
+  qs.nextBtn.textContent = idx === QUESTIONS.length - 1 ? "查看结果" : "下一题";
+}
+
+function computeScores() {
+  const scores = Object.fromEntries(DIMS.map(d => [d, 0]));
+  state.answers.forEach((answer, i) => {
+    const effect = QUESTIONS[i][2][answer][1];
+    Object.entries(effect).forEach(([k, v]) => scores[k] += v);
+  });
+  return scores;
+}
+
+function titleFromScores(scores) {
+  const sorted = [...DIMS].sort((a, b) => scores[b] - scores[a]);
+  const pair = `${sorted[0]}+${sorted[1]}`;
+  return TITLE_MAP[pair] || "城市夜行观察员";
+}
+
+function subtitlesFromScores(scores) {
+  return SUB_TITLES.filter(r => r.when(scores)).map(r => r.text).slice(0, 2);
+}
+
+function generateReport(scores) {
+  const title = titleFromScores(scores);
+  const subs = subtitlesFromScores(scores);
+  const verdict = `你是「${title}」${subs.length ? `（${subs.join(" / ")}）` : ""}。你不是没想法，你只是把“想法”先寄存在明天。`;
+
+  const talents = [];
+  if (scores.SAFE >= 8) talents.push("你有风险雷达，遇事不会第一时间把自己送走。");
+  if (scores.DO >= 8) talents.push("你具备推进能力，不会把所有愿望都留在收藏夹。");
+  if (scores.SOCIAL >= 8) talents.push("你在关系场里有温度，关键时刻能把场子接住。");
+  if (scores.MASK >= 8) talents.push("你有表达分寸感，知道什么时候该体面收尾。");
+  if (scores.DRAMA >= 8) talents.push("你对生活有叙事能力，能把普通日子过出镜头感。");
+  if (talents.length < 2) talents.push("你最大的天赋是自我观察，知道自己在逃什么、盼什么。", "你并不迟钝，你只是选择了更省电的生存节奏。");
+
+  const traps = [];
+  if (scores.AVOID >= 8) traps.push("你容易把‘再想想’当止痛药，短期舒适，长期焦虑。建议：把任务切成5分钟动作，先启动再评价。");
+  if (scores.MASK >= 8 && scores.SOCIAL <= 3) traps.push("你过于维护体面，导致真实需求常常缺席。建议：每周至少一次直接表达‘我其实需要…’。");
+  if (scores.DRAMA >= 8 && scores.DO <= 4) traps.push("你擅长脑内大制作，但执行预算常常不足。建议：每个灵感只允许保留一个最小版本。");
+  if (scores.SAFE >= 9 && scores.DRAMA <= 3) traps.push("你太稳了，稳到错过新机会。建议：每周给自己一次可控冒险。");
+  if (traps.length < 2) traps.push("你最大的惯性是‘知道很多，开始很晚’。建议：先做最笨的一步。", "你会在关键处犹豫。建议：把‘正确决定’改成‘可迭代决定’。");
+
+  const manual = [
+    "和你相处，最好直说重点，别让你猜。",
+    scores.SOCIAL >= 7 ? "你在热闹里能量更高，但也需要被认真听见。" : "你不是冷淡，只是需要慢一点建立信任。",
+    "当你开始玩笑变多，通常说明你在掩饰一点点不安。"
+  ];
+
+  const quest = scores.DO >= 7
+    ? "今晚把一个拖了很久的小事做完，然后允许自己痛快休息。"
+    : "今晚只做一件5分钟小事：回一条消息、整理一个角落、发一个确认。做完就算赢。";
+
+  const recap = "从下水道醒来到天亮前收尾，你一路在‘体面、效率、情绪和安全感’之间做权衡。你不是没有勇气，而是太懂代价，所以总在冲动和克制之间拉扯。";
+
+  return { title, verdict, recap, talents: talents.slice(0, 3), traps: traps.slice(0, 2), manual, quest };
+}
+
+function createAiPrompt(scores, baseReport) {
+  const sorted = [...DIMS].sort((a, b) => scores[b] - scores[a]);
+  return [
+    "你是一个毒舌但善良的中文人格解读写手，风格是70%认真洞察+20%幽默+10%温柔。",
+    "禁止人身攻击、精神疾病诊断、绝对化标签。",
+    "请基于以下数据生成更像长文截图风格的报告，带一点讽刺但不刻薄。",
+    `主称号：${baseReport.title}`,
+    `基础判词：${baseReport.verdict}`,
+    `六维分数：${JSON.stringify(scores)}`,
+    `最高维度：${sorted[0]}、${sorted[1]}`,
+    "请输出 JSON：",
+    "{\"verdict\":\"\",\"story_recap\":\"\",\"talents\":[\"\",\"\"],\"traps\":[\"\",\"\"],\"relationship_manual\":[\"\",\"\"],\"tonight_quest\":\"\"}"
+  ].join("\n");
+}
+
+async function generateAIReport(scores, baseReport) {
+  const endpoint = getSavedEndpoint();
+  const model = qs.modelInput.value.trim();
+  if (!model) {
+    throw new Error("请填写模型名称。");
+  }
+
+  const prompt = createAiPrompt(scores, baseReport);
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model,
+      prompt
+    })
+  });
+
+  if (!response.ok) {
+    const t = await response.text();
+    throw new Error(`AI 请求失败：${response.status} ${t.slice(0, 120)}`);
+  }
+
+  const data = await response.json();
+  const cleaned = (data?.content || "").replace(/```json|```/g, "").trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    throw new Error("AI 返回格式不是 JSON，请重试或更换免费模型。");
+  }
+}
+
+function renderResult() {
+  const scores = computeScores();
+  const report = generateReport(scores);
+
+  document.getElementById("result-title").textContent = `🧾 ${report.title}`;
+  document.getElementById("result-verdict").textContent = report.verdict;
+  document.getElementById("result-recap").textContent = report.recap;
+
+  const talentsEl = document.getElementById("result-talents");
+  talentsEl.innerHTML = "";
+  report.talents.forEach(t => {
+    const li = document.createElement("li");
+    li.textContent = t;
+    talentsEl.appendChild(li);
+  });
+
+  const trapsEl = document.getElementById("result-traps");
+  trapsEl.innerHTML = "";
+  report.traps.forEach(t => {
+    const li = document.createElement("li");
+    li.textContent = t;
+    trapsEl.appendChild(li);
+  });
+
+  const manualEl = document.getElementById("result-manual");
+  manualEl.innerHTML = "";
+  report.manual.forEach(m => {
+    const li = document.createElement("li");
+    li.textContent = m;
+    manualEl.appendChild(li);
+  });
+
+  document.getElementById("result-quest").textContent = report.quest;
+  setStatus("可直接看本地报告；也可通过你的免费代理生成AI长文。");
+
+  qs.copyBtn.onclick = async () => {
+    const text = [
+      `【浣熊今天怎么活】`,
+      `${report.title}`,
+      report.verdict,
+      `- 剧情回放：${report.recap}`,
+      `- 今晚任务：${report.quest}`
+    ].join("\n");
+    await navigator.clipboard.writeText(text);
+    qs.copyBtn.textContent = "已复制 ✅";
+    setTimeout(() => (qs.copyBtn.textContent = "复制结果文案"), 1200);
+  };
+
+  qs.aiGenerateBtn.onclick = async () => {
+    qs.aiGenerateBtn.disabled = true;
+    setStatus("AI 正在写你今天的浣熊传记…");
+    try {
+      const ai = await generateAIReport(scores, report);
+      if (ai.verdict) document.getElementById("result-verdict").textContent = ai.verdict;
+      if (ai.story_recap) document.getElementById("result-recap").textContent = ai.story_recap;
+      if (Array.isArray(ai.talents)) {
+        const talentsEl = document.getElementById("result-talents");
+        talentsEl.innerHTML = "";
+        ai.talents.slice(0, 3).forEach(t => {
+          const li = document.createElement("li");
+          li.textContent = t;
+          talentsEl.appendChild(li);
+        });
+      }
+      if (Array.isArray(ai.traps)) {
+        const trapsEl = document.getElementById("result-traps");
+        trapsEl.innerHTML = "";
+        ai.traps.slice(0, 2).forEach(t => {
+          const li = document.createElement("li");
+          li.textContent = t;
+          trapsEl.appendChild(li);
+        });
+      }
+      if (Array.isArray(ai.relationship_manual)) {
+        const manualEl = document.getElementById("result-manual");
+        manualEl.innerHTML = "";
+        ai.relationship_manual.slice(0, 3).forEach(m => {
+          const li = document.createElement("li");
+          li.textContent = m;
+          manualEl.appendChild(li);
+        });
+      }
+      if (ai.tonight_quest) document.getElementById("result-quest").textContent = ai.tonight_quest;
+      setStatus("AI 报告已生成（免费模型）。");
+    } catch (error) {
+      setStatus(`生成失败：${error.message}`);
+    } finally {
+      qs.aiGenerateBtn.disabled = false;
+    }
+  };
+}
+
+qs.startBtn.onclick = () => {
+  state.index = 0;
+  state.answers.fill(null);
+  show(qs.quiz);
+  renderQuestion();
+};
+
+qs.prevBtn.onclick = () => {
+  if (state.index > 0) {
+    state.index -= 1;
+    renderQuestion();
+  }
+};
+
+qs.nextBtn.onclick = () => {
+  if (state.answers[state.index] === null) return;
+  if (state.index < QUESTIONS.length - 1) {
+    state.index += 1;
+    renderQuestion();
+  } else {
+    show(qs.result);
+    renderResult();
+  }
+};
+
+qs.restartBtn.onclick = () => {
+  show(qs.start);
+};
+
+qs.saveEndpointBtn.onclick = () => {
+  const endpoint = qs.endpointInput.value.trim();
+  if (!endpoint) {
+    setStatus("请先输入 API 地址。");
+    return;
+  }
+  localStorage.setItem("ai_proxy_endpoint", endpoint);
+  setStatus("API 地址已保存。");
+};
+
+qs.endpointInput.value = getSavedEndpoint();
 
