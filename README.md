@@ -28,8 +28,3 @@ python -m http.server 4173
 5. 重新部署。
 
 部署后前端默认请求 `/api/report`，由 `functions/api/report.js` 代理到 OpenRouter 免费模型。
-
-## iPad 打开方式
-
-部署后直接用 iPad Safari 打开你的 `https://xxx.pages.dev` 地址即可。
-
