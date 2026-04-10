@@ -531,10 +531,9 @@ generateAIReport = async function (scores, baseReport) {
   }
 
   const data = await response.json();
-  const cleaned = (data?.content || "").replace(/```json|```/g, "").trim();
   try {
     return {
-      content: JSON.parse(cleaned),
+      content: parseAIJsonResponse(data?.content || ""),
       model: data?.model || ""
     };
   } catch {
@@ -542,3 +541,64 @@ generateAIReport = async function (scores, baseReport) {
   }
 };
 if (qs.endpointInput) qs.endpointInput.value = getSavedEndpoint();
+
+function parseAIJsonResponse(text) {
+  const cleaned = String(text).replace(/```json|```/gi, "").trim();
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const objectText = extractFirstJsonObject(cleaned);
+    if (!objectText) throw new Error("missing json object");
+    return JSON.parse(objectText);
+  }
+}
+
+function extractFirstJsonObject(text) {
+  let start = -1;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+
+    if (start === -1) {
+      if (char === "{") {
+        start = i;
+        depth = 1;
+      }
+      continue;
+    }
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === "\"") {
+      inString = true;
+      continue;
+    }
+
+    if (char === "{") {
+      depth += 1;
+      continue;
+    }
+
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        return text.slice(start, i + 1);
+      }
+    }
+  }
+
+  return "";
+}

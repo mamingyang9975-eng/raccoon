@@ -129,10 +129,14 @@ async function requestOpenRouter({ env, model, prompt }) {
     body: JSON.stringify({
       model,
       messages: [
-        { role: "system", content: "你是中文娱乐人格报告助手。" },
+        {
+          role: "system",
+          content:
+            "你是中文娱乐人格报告助手。你必须只输出一个合法 JSON 对象，不要输出解释、前言、后记、Markdown 或代码块。"
+        },
         { role: "user", content: prompt },
       ],
-      temperature: 0.8,
+      temperature: 0.2,
     }),
   });
 
