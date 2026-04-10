@@ -169,14 +169,18 @@ const qs = {
   qTitle: document.getElementById("question-title"),
   qText: document.getElementById("question-text"),
   options: document.getElementById("options"),
-  aiStatus: document.getElementById("ai-status")
+  endpointInput: document.getElementById("endpoint-input") || null,
+  saveEndpointBtn: document.getElementById("save-endpoint-btn") || null,
+  modelInput: document.getElementById("model-input") || null,
+  aiGenerateBtn: document.getElementById("ai-generate-btn") || null,
+  aiStatus: document.getElementById("ai-status") || null
 };
 
 function getSavedEndpoint() {
   return localStorage.getItem("ai_proxy_endpoint") || "/api/report";
 }
 function setStatus(text) {
-  qs.aiStatus.textContent = text;
+  if (qs.aiStatus) qs.aiStatus.textContent = text;
 }
 function show(screen) {
   [qs.start, qs.quiz, qs.result].forEach(s => s.classList.remove("active"));
@@ -479,12 +483,14 @@ qs.nextBtn.onclick = () => {
 
 qs.restartBtn.onclick = () => show(qs.start);
 
-qs.saveEndpointBtn.onclick = () => {
-  const endpoint = qs.endpointInput.value.trim();
-  if (!endpoint) return setStatus("请先输入 API 地址。");
-  localStorage.setItem("ai_proxy_endpoint", endpoint);
-  setStatus("API 地址已保存。");
-};
+if (qs.saveEndpointBtn && qs.endpointInput) {
+  qs.saveEndpointBtn.onclick = () => {
+    const endpoint = qs.endpointInput.value.trim();
+    if (!endpoint) return setStatus("请先输入 API 地址。");
+    localStorage.setItem("ai_proxy_endpoint", endpoint);
+    setStatus("API 地址已保存。");
+  };
+}
 // 覆盖旧的 generateAIReport：固定 endpoint + model，不用输入框
 generateAIReport = async function (scores, baseReport) {
   const endpoint = "/api/report";
@@ -511,4 +517,3 @@ generateAIReport = async function (scores, baseReport) {
   }
 };
 if (qs.endpointInput) qs.endpointInput.value = getSavedEndpoint();
-
