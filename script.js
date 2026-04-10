@@ -515,12 +515,21 @@ if (qs.saveEndpointBtn && qs.endpointInput) {
 generateAIReport = async function (scores, baseReport) {
   const endpoint = "/api/report";
   const prompt = createAiPrompt(scores, baseReport);
+  const timeoutMs = getAiRequestTimeoutMs();
 
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt })
-  });
+  let response;
+  try {
+    response = await fetchWithTimeout(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    }, timeoutMs);
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error(`AI 请求超时（${Math.ceil(timeoutMs / 1000)} 秒），请稍后重试`);
+    }
+    throw error;
+  }
 
   if (!response.ok) {
     const payload = await response.json().catch(() => null);
@@ -532,10 +541,15 @@ generateAIReport = async function (scores, baseReport) {
     throw new Error(message);
   }
 
-  const data = await response.json();
   try {
+    const data = await response.json();
+    const parsedContent = parseAIJsonResponse(data?.content || "");
+    const normalizedContent = normalizeAIReport(parsedContent);
+    if (!hasVisibleAIContent(normalizedContent)) {
+      throw new Error("AI 返回内容为空");
+    }
     return {
-      content: parseAIJsonResponse(data?.content || ""),
+      content: normalizedContent,
       model: data?.model || ""
     };
   } catch {
@@ -554,6 +568,27 @@ function parseAIJsonResponse(text) {
     if (!objectText) throw new Error("missing json object");
     return JSON.parse(objectText);
   }
+}
+
+function fetchWithTimeout(url, options, timeoutMs) {
+  if (typeof AbortController !== "function") {
+    return fetch(url, options);
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  return fetch(url, {
+    ...options,
+    signal: controller.signal,
+  }).finally(() => {
+    clearTimeout(timer);
+  });
+}
+
+function getAiRequestTimeoutMs() {
+  const raw = Number(globalThis.__AI_REQUEST_TIMEOUT_MS__);
+  return Number.isFinite(raw) && raw > 0 ? raw : 45000;
 }
 
 function extractFirstJsonObject(text) {
@@ -669,6 +704,17 @@ function normalizeAIReport(payload) {
     relationship_manual: relationshipManual,
     tonight_quest: tonightQuest,
   };
+}
+
+function hasVisibleAIContent(report) {
+  return Boolean(
+    report?.verdict ||
+    report?.story_recap ||
+    report?.tonight_quest ||
+    (Array.isArray(report?.talents) && report.talents.length) ||
+    (Array.isArray(report?.traps) && report.traps.length) ||
+    (Array.isArray(report?.relationship_manual) && report.relationship_manual.length)
+  );
 }
 
 function findBestReportObject(payload) {
