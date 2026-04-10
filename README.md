@@ -13,6 +13,16 @@ python -m http.server 4173
 
 打开 `http://127.0.0.1:4173`。
 
+## 本地测试
+
+```bash
+npm test
+```
+
+这会运行两类本地 smoke test：
+- `functions/api/*` 的接口逻辑测试
+- `script.js` 的最小 DOM 渲染测试
+
 ## 免费上线（Cloudflare Pages + Functions）
 
 1. 把项目推送到 GitHub。
@@ -23,7 +33,7 @@ python -m http.server 4173
    - Build output directory: 留空
 4. 在 Pages 项目设置 -> Environment variables 增加：
    - `OPENROUTER_API_KEY` = 你的 OpenRouter Key
-   - `OPENROUTER_MODEL` = `meta-llama/llama-3.3-8b-instruct:free`（可改）
+   - `OPENROUTER_MODEL` = `meta-llama/llama-3.3-8b-instruct`（可改）
    - `SITE_URL` = 你的 Pages 域名（可选）
 5. 重新部署。
 

@@ -21,7 +21,7 @@ const QUESTIONS = [
   ]],
   ["觅食时段", "你发现一块完整三明治，同时听到脚步声。你会：", [
     ["秒叼就跑，执行大于犹豫", { DO: 2, SAFE: 1 }],
-    ["准备卖萌。本浣熊这么可爱人类舍得不给我吃的嘛！", { MASK: 1, SAFE: 2 }],
+    ["卖萌可耻但有用", { MASK: 1, SAFE: 2 }],
     ["放弃这口，告诉自己‘我值得更好的’", { DRAMA: 2, AVOID: 1 }]
   ]],
   ["觅食时段", "吃到一半，另一只浣熊盯着你看。你会：", [
@@ -505,16 +505,15 @@ if (qs.saveEndpointBtn && qs.endpointInput) {
     setStatus("API 地址已保存。");
   };
 }
-// 覆盖旧的 generateAIReport：固定 endpoint + model，不用输入框
+// 覆盖旧的 generateAIReport：固定 endpoint，模型交给后端默认值或环境变量决定
 generateAIReport = async function (scores, baseReport) {
   const endpoint = "/api/report";
-  const model = "meta-llama/llama-3.3-8b-instruct:free";
   const prompt = createAiPrompt(scores, baseReport);
 
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model, prompt })
+    body: JSON.stringify({ prompt })
   });
 
   if (!response.ok) {

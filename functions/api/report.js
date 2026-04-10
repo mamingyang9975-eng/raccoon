@@ -6,7 +6,7 @@ export async function onRequestPost(context) {
     const model =
       body?.model ||
       env.OPENROUTER_MODEL ||
-      "meta-llama/llama-3.3-8b-instruct:free";
+      "meta-llama/llama-3.3-8b-instruct";
 
     const prompt = body?.prompt;
     if (!prompt) {
