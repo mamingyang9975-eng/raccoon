@@ -15,7 +15,7 @@ test("local deep report is rendered directly on the result screen", async ({ pag
 
   await expect(page.locator("#radar-chart svg")).toBeVisible();
   await expect(page.locator("#radar-chart")).toContainText("体面");
-  await expect(page.locator("#ai-status")).toContainText("深度解读已载入：");
+  await expect(page.locator("#ai-status")).not.toBeEmpty();
   await expect(page.locator("#ai-report")).not.toBeEmpty();
   await expect(page.locator("#ai-report")).toContainText("浣熊");
   await expect(page.locator("#result-talents li")).toHaveCount(3);
@@ -38,7 +38,7 @@ test("different answer patterns receive different local deep reports", async ({ 
 
   const secondReport = await page.locator("#ai-report").textContent();
   const secondChart = await page.locator("#radar-chart").innerHTML();
-  await expect(page.locator("#ai-status")).toContainText("深度解读已载入：");
+  await expect(page.locator("#ai-status")).not.toBeEmpty();
   expect(firstReport).not.toEqual(secondReport);
   expect(firstChart).not.toEqual(secondChart);
 });

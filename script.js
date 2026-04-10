@@ -540,7 +540,7 @@ function renderCuratedAiReport(entry) {
     });
   }
 
-  setStatus(`深度解读已载入：${entry.label}`);
+  setStatus(entry.label);
 }
 
 function renderIdentityPanel(report) {
