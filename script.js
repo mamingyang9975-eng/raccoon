@@ -169,10 +169,6 @@ const qs = {
   qTitle: document.getElementById("question-title"),
   qText: document.getElementById("question-text"),
   options: document.getElementById("options"),
-  endpointInput: document.getElementById("endpoint-input"),
-  saveEndpointBtn: document.getElementById("save-endpoint-btn"),
-  modelInput: document.getElementById("model-input"),
-  aiGenerateBtn: document.getElementById("ai-generate-btn"),
   aiStatus: document.getElementById("ai-status")
 };
 
