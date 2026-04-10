@@ -183,6 +183,10 @@ function setStatus(text) {
   if (qs.aiStatus) qs.aiStatus.textContent = text;
 }
 
+function formatModelStatus(prefix, model) {
+  return model ? `${prefix} 当前模型：${model}` : prefix;
+}
+
 function setButtonBusy(button, disabled) {
   if (button) button.disabled = disabled;
 }
@@ -442,8 +446,8 @@ function renderResult() {
       setStatus("AI 正在写你今天的浣熊传记…");
       try {
         const ai = await generateAIReport(scores, report);
-        applyAIToUI(ai);
-        setStatus("AI 报告已生成（免费模型）。");
+        applyAIToUI(ai.content);
+        setStatus(formatModelStatus("AI 报告已生成。", ai.model));
       } catch (error) {
         setStatus(`生成失败：${error.message}`);
       } finally {
@@ -457,8 +461,8 @@ function renderResult() {
     setButtonBusy(qs.aiGenerateBtn, true);
     try {
       const ai = await generateAIReport(scores, report);
-      applyAIToUI(ai);
-      setStatus("AI 报告已自动生成。");
+      applyAIToUI(ai.content);
+      setStatus(formatModelStatus("AI 报告已自动生成。", ai.model));
     } catch (error) {
       setStatus(`自动生成失败：${error.message}`);
     } finally {
@@ -529,7 +533,10 @@ generateAIReport = async function (scores, baseReport) {
   const data = await response.json();
   const cleaned = (data?.content || "").replace(/```json|```/g, "").trim();
   try {
-    return JSON.parse(cleaned);
+    return {
+      content: JSON.parse(cleaned),
+      model: data?.model || ""
+    };
   } catch {
     throw new Error("AI 返回格式不是 JSON");
   }

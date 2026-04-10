@@ -34,6 +34,7 @@ npm test
 4. 在 Pages 项目设置 -> Environment variables 增加：
    - `OPENROUTER_API_KEY` = 你的 OpenRouter Key
    - `OPENROUTER_MODEL` = `mistralai/mistral-small-3.1-24b-instruct:free, qwen/qwen-2.5-7b-instruct:free`
+
    - `SITE_URL` = 你的 Pages 域名（可选）
 5. 重新部署。
 
