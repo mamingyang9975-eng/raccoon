@@ -7,7 +7,7 @@ class Element {
   constructor(id = "") {
     this.id = id;
     this.textContent = "";
-    this.innerHTML = "";
+    this._innerHTML = "";
     this.disabled = false;
     this.value = "";
     this.src = "";
@@ -19,6 +19,15 @@ class Element {
       add() {},
       remove() {},
     };
+  }
+
+  get innerHTML() {
+    return this._innerHTML;
+  }
+
+  set innerHTML(value) {
+    this._innerHTML = value;
+    if (value === "") this.children = [];
   }
 
   appendChild(child) {
@@ -204,4 +213,92 @@ test("script.js can recover JSON embedded in extra model text", async () => {
     elements["ai-status"].textContent,
     "AI 报告已自动生成。 当前模型：openrouter/free"
   );
+});
+
+test("script.js can normalize alternate AI field names and nested payloads", async () => {
+  const ids = [
+    "start-screen",
+    "quiz-screen",
+    "result-screen",
+    "start-btn",
+    "prev-btn",
+    "next-btn",
+    "copy-btn",
+    "restart-btn",
+    "progress-current",
+    "progress-total",
+    "progress-fill",
+    "scene-pill",
+    "question-title",
+    "question-text",
+    "options",
+    "ai-status",
+    "result-title",
+    "result-verdict",
+    "result-recap",
+    "result-talents",
+    "result-traps",
+    "result-manual",
+    "result-quest",
+    "raccoon-avatar",
+  ];
+
+  const elements = Object.fromEntries(ids.map((id) => [id, new Element(id)]));
+  const context = {
+    console,
+    localStorage: {
+      getItem() {
+        return null;
+      },
+      setItem() {},
+    },
+    navigator: {
+      clipboard: {
+        writeText: async () => {},
+      },
+    },
+    setTimeout,
+    clearTimeout,
+    fetch: async () =>
+      new Response(
+        JSON.stringify({
+          model: "liquid/lfm-2.5-1.2b-instruct-20260120:free",
+          content: JSON.stringify({
+            report: {
+              summary: "Nested verdict",
+              narrative: "Nested recap",
+              strengths: ["s1", "s2"],
+              risks: ["r1", "r2"],
+              advice: ["a1", "a2"],
+              action: "Nested quest",
+            },
+          }),
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      ),
+    document: {
+      getElementById(id) {
+        return elements[id] || null;
+      },
+      createElement(tag) {
+        return new Element(tag);
+      },
+    },
+  };
+
+  context.window = context;
+  vm.createContext(context);
+  vm.runInContext(readFileSync(new URL("../script.js", import.meta.url), "utf8"), context);
+  vm.runInContext("state.answers = new Array(QUESTIONS.length).fill(0); renderResult();", context);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  assert.equal(elements["result-verdict"].textContent, "Nested verdict");
+  assert.equal(elements["result-recap"].textContent, "Nested recap");
+  assert.equal(elements["result-quest"].textContent, "Nested quest");
+  assert.equal(elements["result-talents"].children.length, 2);
+  assert.equal(elements["result-traps"].children.length, 2);
+  assert.equal(elements["result-manual"].children.length, 2);
 });

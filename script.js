@@ -349,40 +349,42 @@ async function generateAIReport(scores, baseReport) {
 }
 
 function applyAIToUI(ai) {
-  if (ai.verdict) document.getElementById("result-verdict").textContent = ai.verdict;
-  if (ai.story_recap) document.getElementById("result-recap").textContent = ai.story_recap;
+  const normalized = normalizeAIReport(ai);
 
-  if (Array.isArray(ai.talents)) {
+  if (normalized.verdict) document.getElementById("result-verdict").textContent = normalized.verdict;
+  if (normalized.story_recap) document.getElementById("result-recap").textContent = normalized.story_recap;
+
+  if (Array.isArray(normalized.talents) && normalized.talents.length) {
     const talentsEl = document.getElementById("result-talents");
     talentsEl.innerHTML = "";
-    ai.talents.slice(0, 3).forEach(t => {
+    normalized.talents.slice(0, 3).forEach(t => {
       const li = document.createElement("li");
       li.textContent = t;
       talentsEl.appendChild(li);
     });
   }
 
-  if (Array.isArray(ai.traps)) {
+  if (Array.isArray(normalized.traps) && normalized.traps.length) {
     const trapsEl = document.getElementById("result-traps");
     trapsEl.innerHTML = "";
-    ai.traps.slice(0, 2).forEach(t => {
+    normalized.traps.slice(0, 2).forEach(t => {
       const li = document.createElement("li");
       li.textContent = t;
       trapsEl.appendChild(li);
     });
   }
 
-  if (Array.isArray(ai.relationship_manual)) {
+  if (Array.isArray(normalized.relationship_manual) && normalized.relationship_manual.length) {
     const manualEl = document.getElementById("result-manual");
     manualEl.innerHTML = "";
-    ai.relationship_manual.slice(0, 3).forEach(m => {
+    normalized.relationship_manual.slice(0, 3).forEach(m => {
       const li = document.createElement("li");
       li.textContent = m;
       manualEl.appendChild(li);
     });
   }
 
-  if (ai.tonight_quest) document.getElementById("result-quest").textContent = ai.tonight_quest;
+  if (normalized.tonight_quest) document.getElementById("result-quest").textContent = normalized.tonight_quest;
 }
 
 /* =========================
@@ -601,4 +603,137 @@ function extractFirstJsonObject(text) {
   }
 
   return "";
+}
+
+function normalizeAIReport(payload) {
+  const root = findBestReportObject(payload);
+
+  const verdict = firstString(
+    root.verdict,
+    root.summary,
+    root.overview,
+    root.analysis,
+    root.description,
+    root.result,
+    root.title
+  );
+
+  const storyRecap = firstString(
+    root.story_recap,
+    root.storyRecap,
+    root.recap,
+    root.story,
+    root.narrative,
+    root.details
+  );
+
+  const talents = normalizeList(
+    root.talents,
+    root.strengths,
+    root.highlights,
+    root.advantages,
+    root.good_points
+  );
+
+  const traps = normalizeList(
+    root.traps,
+    root.weaknesses,
+    root.risks,
+    root.pitfalls,
+    root.bad_points
+  );
+
+  const relationshipManual = normalizeList(
+    root.relationship_manual,
+    root.relationshipManual,
+    root.relationship_advice,
+    root.relationshipAdvice,
+    root.advice,
+    root.suggestions
+  );
+
+  const tonightQuest = firstString(
+    root.tonight_quest,
+    root.tonightQuest,
+    root.quest,
+    root.action,
+    root.next_step,
+    root.nextStep
+  );
+
+  return {
+    verdict,
+    story_recap: storyRecap,
+    talents,
+    traps,
+    relationship_manual: relationshipManual,
+    tonight_quest: tonightQuest,
+  };
+}
+
+function findBestReportObject(payload) {
+  const queue = [payload];
+  const seen = new Set();
+  let best = {};
+  let bestScore = -1;
+
+  while (queue.length) {
+    const current = queue.shift();
+    if (!current || typeof current !== "object" || seen.has(current)) continue;
+    seen.add(current);
+
+    const score = scoreReportObject(current);
+    if (score > bestScore) {
+      best = current;
+      bestScore = score;
+    }
+
+    for (const value of Object.values(current)) {
+      if (value && typeof value === "object") queue.push(value);
+    }
+  }
+
+  return best;
+}
+
+function scoreReportObject(obj) {
+  let score = 0;
+  const keys = Object.keys(obj);
+  for (const key of keys) {
+    if (/verdict|summary|analysis|story|recap|quest|talent|strength|trap|risk|advice/i.test(key)) {
+      score += 2;
+    }
+    const value = obj[key];
+    if (typeof value === "string" && value.trim()) score += 1;
+    if (Array.isArray(value) && value.length) score += 1;
+  }
+  return score;
+}
+
+function firstString(...values) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return "";
+}
+
+function normalizeList(...values) {
+  for (const value of values) {
+    if (Array.isArray(value)) {
+      const items = value
+        .map((item) => (typeof item === "string" ? item.trim() : ""))
+        .filter(Boolean);
+      if (items.length) return items;
+    }
+
+    if (typeof value === "string" && value.trim()) {
+      const items = value
+        .split(/\n|[;；]|(?<=\S)[,，](?=\S)/)
+        .map((item) => item.replace(/^[-*•]\s*/, "").trim())
+        .filter(Boolean);
+      if (items.length) return items;
+    }
+  }
+
+  return [];
 }
