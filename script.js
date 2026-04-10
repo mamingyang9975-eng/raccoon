@@ -65,7 +65,7 @@ const QUESTIONS = [
     ["内心想了N件事，话只说了三句", { DRAMA: 2, AVOID: 1 }]
   ]],
   ["感情支线", "聊天中途你思绪飘远，小未问你‘你在想什么’。你会：", [
-    ["坦白：不好我又走神了！, { DO: 1, SOCIAL: 1, MASK: -1 }],
+    ["坦白：不好我又走神了！", { DO: 1, SOCIAL: 1, MASK: -1 }],
     ["回个玩笑，轻轻带过", { MASK: 2, AVOID: 1 }],
     ["转移话题聊天气和垃圾分类", { AVOID: 2, SAFE: 1 }]
   ]],
@@ -119,6 +119,7 @@ const QUESTIONS = [
     ["睡醒会不会有一只装满食物的垃圾桶不小心出现在熊的面前然后熊刚吃完就又有一个垃圾桶出现在熊的面前然后...", { DRAMA: 2 }],
     ["今天的事情明天再说，睡了睡了", { AVOID: 2, SAFE: 1 }]
   ]]
+ ];
 const DIMS = ["MASK", "SAFE", "SOCIAL", "AVOID", "DRAMA", "DO"];
 
 const TITLE_MAP = {
