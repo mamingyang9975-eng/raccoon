@@ -367,7 +367,12 @@ function applyAIToUI(ai) {
  * ========================= */
 function renderResult() {
   const scores = computeScores();
-  const report = generateReport(scores);
+const report = generateReport(scores);
+
+const avatar = document.getElementById("raccoon-avatar");
+if (avatar) {
+  avatar.src = `/api/avatar?title=${encodeURIComponent(report.title)}`;
+}
 
   // 你要的醒目标题：固定“夜行观察员”
   document.getElementById("result-title").textContent = "夜行观察员";
