@@ -119,8 +119,6 @@ const QUESTIONS = [
     ["睡醒会不会有一只装满食物的垃圾桶不小心出现在熊的面前然后熊刚吃完就又有一个垃圾桶出现在熊的面前然后...", { DRAMA: 2 }],
     ["今天的事情明天再说，睡了睡了", { AVOID: 2, SAFE: 1 }]
   ]]
-];
-
 const DIMS = ["MASK", "SAFE", "SOCIAL", "AVOID", "DRAMA", "DO"];
 
 const TITLE_MAP = {
@@ -149,6 +147,9 @@ const SUB_TITLES = [
   { when: s => s.SOCIAL <= 2 && s.MASK >= 8, text: "礼貌潜水艇" }
 ];
 
+/* =========================
+ * 3) 状态 & DOM
+ * ========================= */
 const state = { index: 0, answers: new Array(QUESTIONS.length).fill(null) };
 
 const qs = {
@@ -177,22 +178,25 @@ const qs = {
 function getSavedEndpoint() {
   return localStorage.getItem("ai_proxy_endpoint") || "/api/report";
 }
-
 function setStatus(text) {
   qs.aiStatus.textContent = text;
 }
-
 function show(screen) {
   [qs.start, qs.quiz, qs.result].forEach(s => s.classList.remove("active"));
   screen.classList.add("active");
 }
 
+/* =========================
+ * 4) 问题渲染
+ * ========================= */
 function renderQuestion() {
   const idx = state.index;
   const [scene, text, options] = QUESTIONS[idx];
+
   qs.progressCurrent.textContent = idx + 1;
   qs.progressTotal.textContent = QUESTIONS.length;
   qs.progressFill.style.width = `${((idx + 1) / QUESTIONS.length) * 100}%`;
+
   qs.scenePill.textContent = scene;
   qs.qTitle.textContent = `第 ${idx + 1} 题`;
   qs.qText.textContent = text;
@@ -215,11 +219,14 @@ function renderQuestion() {
   qs.nextBtn.textContent = idx === QUESTIONS.length - 1 ? "查看结果" : "下一题";
 }
 
+/* =========================
+ * 5) 评分与本地报告
+ * ========================= */
 function computeScores() {
   const scores = Object.fromEntries(DIMS.map(d => [d, 0]));
   state.answers.forEach((answer, i) => {
     const effect = QUESTIONS[i][2][answer][1];
-    Object.entries(effect).forEach(([k, v]) => scores[k] += v);
+    Object.entries(effect).forEach(([k, v]) => (scores[k] += v));
   });
   return scores;
 }
@@ -245,14 +252,20 @@ function generateReport(scores) {
   if (scores.SOCIAL >= 8) talents.push("你在关系场里有温度，关键时刻能把场子接住。");
   if (scores.MASK >= 8) talents.push("你有表达分寸感，知道什么时候该体面收尾。");
   if (scores.DRAMA >= 8) talents.push("你对生活有叙事能力，能把普通日子过出镜头感。");
-  if (talents.length < 2) talents.push("你最大的天赋是自我观察，知道自己在逃什么、盼什么。", "你并不迟钝，你只是选择了更省电的生存节奏。");
+  if (talents.length < 2) {
+    talents.push("你最大的天赋是自我观察，知道自己在逃什么、盼什么。");
+    talents.push("你并不迟钝，你只是选择了更省电的生存节奏。");
+  }
 
   const traps = [];
   if (scores.AVOID >= 8) traps.push("你容易把‘再想想’当止痛药，短期舒适，长期焦虑。建议：把任务切成5分钟动作，先启动再评价。");
   if (scores.MASK >= 8 && scores.SOCIAL <= 3) traps.push("你过于维护体面，导致真实需求常常缺席。建议：每周至少一次直接表达‘我其实需要…’。");
   if (scores.DRAMA >= 8 && scores.DO <= 4) traps.push("你擅长脑内大制作，但执行预算常常不足。建议：每个灵感只允许保留一个最小版本。");
   if (scores.SAFE >= 9 && scores.DRAMA <= 3) traps.push("你太稳了，稳到错过新机会。建议：每周给自己一次可控冒险。");
-  if (traps.length < 2) traps.push("你最大的惯性是‘知道很多，开始很晚’。建议：先做最笨的一步。", "你会在关键处犹豫。建议：把‘正确决定’改成‘可迭代决定’。");
+  if (traps.length < 2) {
+    traps.push("你最大的惯性是‘知道很多，开始很晚’。建议：先做最笨的一步。");
+    traps.push("你会在关键处犹豫。建议：把‘正确决定’改成‘可迭代决定’。");
+  }
 
   const manual = [
     "和你相处，最好直说重点，别让你猜。",
@@ -269,6 +282,9 @@ function generateReport(scores) {
   return { title, verdict, recap, talents: talents.slice(0, 3), traps: traps.slice(0, 2), manual, quest };
 }
 
+/* =========================
+ * 6) AI 生成
+ * ========================= */
 function createAiPrompt(scores, baseReport) {
   const sorted = [...DIMS].sort((a, b) => scores[b] - scores[a]);
   return [
@@ -287,21 +303,14 @@ function createAiPrompt(scores, baseReport) {
 async function generateAIReport(scores, baseReport) {
   const endpoint = getSavedEndpoint();
   const model = qs.modelInput.value.trim();
-  if (!model) {
-    throw new Error("请填写模型名称。");
-  }
+  if (!model) throw new Error("请填写模型名称。");
 
   const prompt = createAiPrompt(scores, baseReport);
 
   const response = await fetch(endpoint, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model,
-      prompt
-    })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model, prompt })
   });
 
   if (!response.ok) {
@@ -311,6 +320,7 @@ async function generateAIReport(scores, baseReport) {
 
   const data = await response.json();
   const cleaned = (data?.content || "").replace(/```json|```/g, "").trim();
+
   try {
     return JSON.parse(cleaned);
   } catch {
@@ -318,11 +328,52 @@ async function generateAIReport(scores, baseReport) {
   }
 }
 
+function applyAIToUI(ai) {
+  if (ai.verdict) document.getElementById("result-verdict").textContent = ai.verdict;
+  if (ai.story_recap) document.getElementById("result-recap").textContent = ai.story_recap;
+
+  if (Array.isArray(ai.talents)) {
+    const talentsEl = document.getElementById("result-talents");
+    talentsEl.innerHTML = "";
+    ai.talents.slice(0, 3).forEach(t => {
+      const li = document.createElement("li");
+      li.textContent = t;
+      talentsEl.appendChild(li);
+    });
+  }
+
+  if (Array.isArray(ai.traps)) {
+    const trapsEl = document.getElementById("result-traps");
+    trapsEl.innerHTML = "";
+    ai.traps.slice(0, 2).forEach(t => {
+      const li = document.createElement("li");
+      li.textContent = t;
+      trapsEl.appendChild(li);
+    });
+  }
+
+  if (Array.isArray(ai.relationship_manual)) {
+    const manualEl = document.getElementById("result-manual");
+    manualEl.innerHTML = "";
+    ai.relationship_manual.slice(0, 3).forEach(m => {
+      const li = document.createElement("li");
+      li.textContent = m;
+      manualEl.appendChild(li);
+    });
+  }
+
+  if (ai.tonight_quest) document.getElementById("result-quest").textContent = ai.tonight_quest;
+}
+
+/* =========================
+ * 7) 结果渲染（关键改动都在这里）
+ * ========================= */
 function renderResult() {
   const scores = computeScores();
   const report = generateReport(scores);
 
-  document.getElementById("result-title").textContent = `🧾 ${report.title}`;
+  // 你要的醒目标题：固定“夜行观察员”
+  document.getElementById("result-title").textContent = "夜行观察员";
   document.getElementById("result-verdict").textContent = report.verdict;
   document.getElementById("result-recap").textContent = report.recap;
 
@@ -351,56 +402,28 @@ function renderResult() {
   });
 
   document.getElementById("result-quest").textContent = report.quest;
-  setStatus("可直接看本地报告；也可通过你的免费代理生成AI长文。");
+  setStatus("正在自动生成 AI 报告…");
 
   qs.copyBtn.onclick = async () => {
     const text = [
       `【浣熊今天怎么活】`,
-      `${report.title}`,
-      report.verdict,
-      `- 剧情回放：${report.recap}`,
-      `- 今晚任务：${report.quest}`
+      `夜行观察员`,
+      document.getElementById("result-verdict").textContent,
+      `- 剧情回放：${document.getElementById("result-recap").textContent}`,
+      `- 今晚任务：${document.getElementById("result-quest").textContent}`
     ].join("\n");
     await navigator.clipboard.writeText(text);
     qs.copyBtn.textContent = "已复制 ✅";
     setTimeout(() => (qs.copyBtn.textContent = "复制结果文案"), 1200);
   };
 
+  // 手动重试按钮保留
   qs.aiGenerateBtn.onclick = async () => {
     qs.aiGenerateBtn.disabled = true;
     setStatus("AI 正在写你今天的浣熊传记…");
     try {
       const ai = await generateAIReport(scores, report);
-      if (ai.verdict) document.getElementById("result-verdict").textContent = ai.verdict;
-      if (ai.story_recap) document.getElementById("result-recap").textContent = ai.story_recap;
-      if (Array.isArray(ai.talents)) {
-        const talentsEl = document.getElementById("result-talents");
-        talentsEl.innerHTML = "";
-        ai.talents.slice(0, 3).forEach(t => {
-          const li = document.createElement("li");
-          li.textContent = t;
-          talentsEl.appendChild(li);
-        });
-      }
-      if (Array.isArray(ai.traps)) {
-        const trapsEl = document.getElementById("result-traps");
-        trapsEl.innerHTML = "";
-        ai.traps.slice(0, 2).forEach(t => {
-          const li = document.createElement("li");
-          li.textContent = t;
-          trapsEl.appendChild(li);
-        });
-      }
-      if (Array.isArray(ai.relationship_manual)) {
-        const manualEl = document.getElementById("result-manual");
-        manualEl.innerHTML = "";
-        ai.relationship_manual.slice(0, 3).forEach(m => {
-          const li = document.createElement("li");
-          li.textContent = m;
-          manualEl.appendChild(li);
-        });
-      }
-      if (ai.tonight_quest) document.getElementById("result-quest").textContent = ai.tonight_quest;
+      applyAIToUI(ai);
       setStatus("AI 报告已生成（免费模型）。");
     } catch (error) {
       setStatus(`生成失败：${error.message}`);
@@ -408,11 +431,28 @@ function renderResult() {
       qs.aiGenerateBtn.disabled = false;
     }
   };
+
+  // 自动生成（你要的：不需要玩家再点）
+  (async () => {
+    qs.aiGenerateBtn.disabled = true;
+    try {
+      const ai = await generateAIReport(scores, report);
+      applyAIToUI(ai);
+      setStatus("AI 报告已自动生成。");
+    } catch (error) {
+      setStatus(`自动生成失败：${error.message}`);
+    } finally {
+      qs.aiGenerateBtn.disabled = false;
+    }
+  })();
 }
 
+/* =========================
+ * 8) 事件绑定
+ * ========================= */
 qs.startBtn.onclick = () => {
   state.index = 0;
-  state.answers.fill(null);
+  state.answers = new Array(QUESTIONS.length).fill(null);
   show(qs.quiz);
   renderQuestion();
 };
@@ -435,19 +475,13 @@ qs.nextBtn.onclick = () => {
   }
 };
 
-qs.restartBtn.onclick = () => {
-  show(qs.start);
-};
+qs.restartBtn.onclick = () => show(qs.start);
 
 qs.saveEndpointBtn.onclick = () => {
   const endpoint = qs.endpointInput.value.trim();
-  if (!endpoint) {
-    setStatus("请先输入 API 地址。");
-    return;
-  }
+  if (!endpoint) return setStatus("请先输入 API 地址。");
   localStorage.setItem("ai_proxy_endpoint", endpoint);
   setStatus("API 地址已保存。");
 };
 
 qs.endpointInput.value = getSavedEndpoint();
-
