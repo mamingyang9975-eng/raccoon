@@ -53,6 +53,7 @@ test("script.js can render the result screen in a minimal DOM", async () => {
     "question-text",
     "options",
     "ai-status",
+    "ai-report",
     "result-title",
     "result-verdict",
     "result-recap",
@@ -115,15 +116,13 @@ test("script.js can render the result screen in a minimal DOM", async () => {
 
   assert.equal(elements["result-title"].textContent, "夜行观察员");
   assert.match(elements["raccoon-avatar"].src, /\/api\/avatar\?title=/);
-  assert.equal(elements["result-verdict"].textContent, "AI verdict");
-  assert.equal(elements["result-quest"].textContent, "g");
-  assert.equal(
-    elements["ai-status"].textContent,
-    "AI 报告已自动生成。 当前模型：qwen/qwen-2.5-7b-instruct:free"
-  );
+  assert.match(elements["result-verdict"].textContent, /你是「/);
+  assert.match(elements["ai-status"].textContent, /^深度解读已载入：/);
+  assert.equal(elements["ai-report"].children.length, 1);
+  assert.match(elements["ai-report"].children[0].textContent, /浣熊/);
 });
 
-test("script.js can recover JSON embedded in extra model text", async () => {
+test("script.js can render a different local deep report for another answer pattern", async () => {
   const ids = [
     "start-screen",
     "quiz-screen",
@@ -141,6 +140,7 @@ test("script.js can recover JSON embedded in extra model text", async () => {
     "question-text",
     "options",
     "ai-status",
+    "ai-report",
     "result-title",
     "result-verdict",
     "result-recap",
@@ -204,18 +204,16 @@ test("script.js can recover JSON embedded in extra model text", async () => {
   context.window = context;
   vm.createContext(context);
   vm.runInContext(readFileSync(new URL("../script.js", import.meta.url), "utf8"), context);
-  vm.runInContext("state.answers = new Array(QUESTIONS.length).fill(0); renderResult();", context);
+  vm.runInContext("state.answers = new Array(QUESTIONS.length).fill(1); renderResult();", context);
   await new Promise((resolve) => setTimeout(resolve, 0));
 
-  assert.equal(elements["result-verdict"].textContent, "Recovered verdict");
-  assert.equal(elements["result-quest"].textContent, "Recovered quest");
-  assert.equal(
-    elements["ai-status"].textContent,
-    "AI 报告已自动生成。 当前模型：openrouter/free"
-  );
+  assert.match(elements["ai-status"].textContent, /^深度解读已载入：/);
+  assert.equal(elements["ai-report"].children.length, 1);
+  assert.match(elements["ai-report"].children[0].textContent, /浣熊/);
+  assert.notEqual(elements["ai-report"].children[0].textContent, "");
 });
 
-test("script.js can normalize alternate AI field names and nested payloads", async () => {
+test("script.js can render a local deep report for a third answer pattern", async () => {
   const ids = [
     "start-screen",
     "quiz-screen",
@@ -233,6 +231,7 @@ test("script.js can normalize alternate AI field names and nested payloads", asy
     "question-text",
     "options",
     "ai-status",
+    "ai-report",
     "result-title",
     "result-verdict",
     "result-recap",
@@ -292,13 +291,13 @@ test("script.js can normalize alternate AI field names and nested payloads", asy
   context.window = context;
   vm.createContext(context);
   vm.runInContext(readFileSync(new URL("../script.js", import.meta.url), "utf8"), context);
-  vm.runInContext("state.answers = new Array(QUESTIONS.length).fill(0); renderResult();", context);
+  vm.runInContext("state.answers = new Array(QUESTIONS.length).fill(2); renderResult();", context);
   await new Promise((resolve) => setTimeout(resolve, 0));
 
-  assert.equal(elements["result-verdict"].textContent, "Nested verdict");
-  assert.equal(elements["result-recap"].textContent, "Nested recap");
-  assert.equal(elements["result-quest"].textContent, "Nested quest");
-  assert.equal(elements["result-talents"].children.length, 2);
-  assert.equal(elements["result-traps"].children.length, 2);
-  assert.equal(elements["result-manual"].children.length, 2);
+  assert.match(elements["ai-status"].textContent, /^深度解读已载入：/);
+  assert.equal(elements["ai-report"].children.length, 1);
+  assert.match(elements["ai-report"].children[0].textContent, /浣熊/);
+  assert.ok(elements["result-talents"].children.length >= 2);
+  assert.ok(elements["result-traps"].children.length >= 2);
+  assert.ok(elements["result-manual"].children.length >= 2);
 });

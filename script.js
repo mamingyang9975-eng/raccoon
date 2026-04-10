@@ -148,6 +148,153 @@ const SUB_TITLES = [
   { when: s => s.SOCIAL <= 2 && s.MASK >= 8, text: "礼貌潜水艇" }
 ];
 
+const CURATED_AI_REPORTS = {
+  "MASK+SAFE:spiky": {
+    label: "体面生存架构师·硬壳版",
+    deep_dive: [
+      `你像那种会先确认监控死角、再决定从哪个垃圾桶下爪的浣熊。你对体面的执念已经不是审美，而是一套完整的生存系统：情绪可以有，破绽最好没有；想要可以很强，但吃相必须克制。别人以为你天生稳，其实你只是太早学会了，城市夜里最贵的东西不是浪漫，是补救成本。你最厉害的地方，是总能把狼狈压成一条很平的褶；你最累的地方，也是在这儿，因为你连崩溃都想挑一个光线好的地方。`
+    ]
+  },
+  "MASK+SAFE:steady": {
+    label: "体面生存架构师·缓流版",
+    deep_dive: [
+      `你不是那种张牙舞爪的浣熊，你更像会在路灯下先把胡须捋顺，再安静判断哪条巷子值得走的那种熊。你有一种很温和但很顽固的自尊：事情可以慢一点，出手可以少一点，但不能乱，不能丢脸，不能把自己弄得太难收拾。所以你常常让别的浣熊觉得“这只浣熊挺有分寸”，只有你自己知道，这分寸感里藏着多少预演和彩排。你其实并不冷，你只是习惯先把安全感搭好，再允许真实自己出来透气。`
+    ]
+  },
+  "MASK+AVOID:spiky": {
+    label: "战术性失踪总监·隐身版",
+    deep_dive: [
+      `你最擅长的技能，不是表达，而是撤退，而且撤退得还挺体面。别的浣熊消失是因为慌，你消失是因为你已经在脑内完成了五轮社交后果评估，觉得“算了，今晚不值得”。你会认真经营别人眼里的自己，却把真正的疲惫、麻烦和狼狈藏在最深的下水道拐角。好笑的是，你并不是不在乎关系，你是太在乎关系里那个可能出糗的自己，所以宁可先下线，再让别人猜你是不是很酷。你不是神秘，你是过度维护现场秩序的小浣熊。`
+    ]
+  },
+  "MASK+AVOID:steady": {
+    label: "战术性失踪总监·月光版",
+    deep_dive: [
+      `你有一种很柔软的退场方式：不是突然翻脸，也不是彻底失联，而是轻轻把自己从现场挪开，像一只叼着半块饼干慢慢退回树影里的浣熊。你想被喜欢，也想被理解，但更想避免那些需要当场拆开自己的时刻。于是你总把“以后再说”包装得很自然，把“我有点招架不住”藏成一句礼貌的玩笑。你温和、聪明、有审美，就是太会给别人留台阶，以至于自己常常没有正面表达的机会。`
+    ]
+  },
+  "MASK+DRAMA:spiky": {
+    label: "精致崩溃艺术家·首映版",
+    deep_dive: [
+      `你这只浣熊活得像一场布光考究的夜戏，连情绪都有镜头调度。你不是不清醒，相反，你太清醒了，所以你特别知道什么样的脆弱会显得高级，什么样的失控会显得难看。你会一边心里翻江倒海，一边表面把尾巴抖得像刚上过造型课。你的魅力在于你能把普通的难过讲得像城市传说，但风险也很明显：有时候你不是在感受生活，而是在给生活做后期。你其实很想被看见，只是希望别人看到的是完整版导演剪辑，不是拍摄现场那点手忙脚乱。`
+    ]
+  },
+  "MASK+DRAMA:steady": {
+    label: "精致崩溃艺术家·留白版",
+    deep_dive: [
+      `你身上那股“有事，但我先保持好看”的气质非常明显。你会在情绪上来时先整理句子，再整理表情，最后才决定要不要把真实心情放出来，像一只在雨后认真舔毛的浣熊，哪怕心里已经积了一地小水坑。你其实很有叙事感，知道什么值得珍藏、什么适合沉默，只是有时候太会把痛感包上漂亮包装，连自己都差点忘了它还是痛。你不是矫情，你只是很会把混乱修成一张能发出去的照片。`
+    ]
+  },
+  "SAFE+DO:spiky": {
+    label: "稳健推进工程师·施工版",
+    deep_dive: [
+      `你像那种已经给今晚觅食路线画好流程图的浣熊，垃圾桶在哪个点翻、保安几点巡、撤退路径怎么走，全在脑子里排过。你不靠气氛活着，你靠执行；但你又不是那种莽冲型选手，你每一步都带着“先活下来再说”的职业素养。你总让熊群觉得很可靠，甚至有点像浣熊版项目经理，能把混乱夜晚硬生生整理出一个可交付版本。缺点也很直接：你容易把日子过成一份长期待办清单，休息都得像完成任务一样才放心。`
+    ]
+  },
+  "SAFE+DO:steady": {
+    label: "稳健推进工程师·值夜版",
+    deep_dive: [
+      `你不是最吵的那只浣熊，但常常是最后真把事办成的那只。你身上有一种很踏实的夜行气质：不抢戏，不乱扑，不把“我有计划”挂在嘴边，但关键时刻总能稳稳地往前推。你不是没有幻想，只是比起热血宣言，你更相信先把今天这顿饭找着、把眼前这件事落地。你的靠谱让人安心，只是偶尔也会让你自己忘记，原来你也可以不那么懂事，不那么总是负责。`
+    ]
+  },
+  "SAFE+AVOID:spiky": {
+    label: "风险规避型观察员·雷达版",
+    deep_dive: [
+      `你像一只自带雷达的浣熊，别人还在闻薯条味，你已经先闻到风险了。你很少鲁莽犯错，因为你脑子里总有一个安静但不肯下班的值班员，不停提醒你：这个人靠谱吗，这条路稳吗，这件事会不会很麻烦。你的谨慎救过你很多次，但也让你错过过一些本来能尝一口的生活。你不是胆小，你只是太懂“收拾残局”有多耗电。问题是，世界不是每次都需要你先备案，有些夜晚只需要你先伸出爪子，试一口再说。`
+    ]
+  },
+  "SAFE+AVOID:steady": {
+    label: "风险规避型观察员·望风版",
+    deep_dive: [
+      `你是那种会先蹲在树杈上看完整个现场，再决定要不要下去的浣熊。你不爱无意义的冒险，也不相信“冲就完了”这套热血口号。你更像一个温和的观察者，习惯在行动之前给自己留余地、给局面留出口。你身上的审慎感不是扫兴，而是一种成熟的夜间礼貌。只是有时候你把“先看看”用得太熟了，熟到机会从面前慢慢经过，你还在研究它会不会翻车。`
+    ]
+  },
+  "SAFE+SOCIAL:spiky": {
+    label: "礼貌联盟协调员·街区版",
+    deep_dive: [
+      `你像街区里最会打圆场的那只浣熊，谁吵起来你都能接住，谁慌了你都能递个台阶。你不是单纯爱热闹，你是擅长在热闹里维持秩序：既不让局面失控，也不让气氛死掉。你身上那种“大家先别急”的能量特别珍贵，像便利店后门永远亮着的一盏小灯。可这类浣熊也有老毛病，太习惯照顾现场，就容易忘了自己也是现场的一部分。你很会让别人舒服，却不一定记得及时问一句：那我自己现在舒不舒服？`
+    ]
+  },
+  "SAFE+SOCIAL:steady": {
+    label: "礼貌联盟协调员·后勤版",
+    deep_dive: [
+      `你不是那种高调控场的浣熊，你更像一只默默把局面维持住的后勤型选手。你知道什么时候该给台阶，什么时候该换个轻一点的话题，什么时候该把过度尴尬的空气悄悄拨散。你有温度，也有边界，这种组合非常难得。你不是天生热情外放，而是懂得关系要想走得远，靠的不是一时上头，是持续稳定地给人安全感。只是你偶尔会太懂事，懂事到把自己的需求藏得像压箱底的坚果。`
+    ]
+  },
+  "SOCIAL+DRAMA:spiky": {
+    label: "夜间气氛组组长·炸场版",
+    deep_dive: [
+      `你这只浣熊天生适合在夜里发光，走到哪儿都像自带一点情节和背景音乐。你不是单纯爱社交，你是爱那种“熊与熊之间忽然活起来”的瞬间：一句话让全场笑，一次接梗让关系升温，一场夜聊硬是被你聊出群像戏。你会让熊觉得你很会玩、很会懂、很会共振，但你也容易被场子的情绪拖着跑，像一位一边给大家点火、一边偷偷消耗自己电量的主持浣熊。你热闹是真的，疲惫也是真的。`
+    ]
+  },
+  "SOCIAL+DRAMA:steady": {
+    label: "夜间气氛组组长·柔光版",
+    deep_dive: [
+      `你不是最炸的那种热闹选手，但你特别会把场子养热。你像一只坐在路灯下讲八卦也能讲出氛围感的浣熊，别人跟你待久了，会不自觉把戒备放下来。你有一种很稀缺的能力：既能感受气氛，又能给气氛加一点好看的滤镜。你会让平常的夜晚变得值得记住，像垃圾桶旁边突然出现的一块完整披萨。只是你也容易把别人的反应当成自己的晴雨表，外面一降温，你心里也跟着起雾。`
+    ]
+  },
+  "SOCIAL+DO:spiky": {
+    label: "行动派社交发动机·点火版",
+    deep_dive: [
+      `你是那种会一边招呼大家集合、一边已经把计划推进两格的浣熊。你不只会说，你真的会动；不只会热情，你还能把热情变成结果。所以你给人的感觉很像城市夜行动员令本身，谁在你旁边都容易被带着往前走。你的优点是高启动、高连接、高推进，缺点也一目了然：你有时快到来不及确认自己是不是也愿意。你很像那种嘴里叼着薯条还在帮全场张罗路线的浣熊，能量十足，也容易把自己忙成移动充电宝。`
+    ]
+  },
+  "SOCIAL+DO:steady": {
+    label: "行动派社交发动机·暖机版",
+    deep_dive: [
+      `你不是高声喧哗型的社交王者，但你很会把局和关系往前带。你像一只特别会串场的浣熊，看起来轻松，实际一直在默默推进：提醒、确认、接话、拉队友、把一团乱线理成能走的方向。你的可靠感很强，因为你不是嘴上热情，是手脚也跟得上。只是你偶尔会把“我来吧”说得太顺，顺到别的浣熊以为你不需要被照顾。其实你也会累，只是你的累通常穿着工作服，不太容易被看出来。`
+    ]
+  },
+  "SOCIAL+AVOID:spiky": {
+    label: "间歇性热闹选手·闪现版",
+    deep_dive: [
+      `你是那种能在局里突然发光，也能在下一秒原地蒸发的浣熊。热闹对你不是负担，但它必须刚刚好，太无聊你嫌闷，太黏你想跑。你很会在人群里留下存在感，像夜里一下跳上栏杆的那道影子，大家都看见了，但没人真能抓住你多久。你其实并不矛盾，你只是需要比别人更灵活的距离感：想连接，但不想被套牢；想被懂，但不想被追问到底。你不是忽冷忽热，你是电量管理非常有主见。`
+    ]
+  },
+  "SOCIAL+AVOID:steady": {
+    label: "间歇性热闹选手·省电版",
+    deep_dive: [
+      `你很可爱的一点是，你明明也需要同伴，但也很需要退路。你像一只会在朋友堆里认真笑、认真接话、认真贡献气氛，然后回家之后把手机倒扣三小时的浣熊。你并不是不喜欢亲近，你只是对持续在线这件事有天然疲惫感。别的浣熊有时候会觉得你难猜，其实你很好懂：你想要的是轻盈的关系，不是紧逼的管理。你愿意热闹，但前提是热闹别变成考勤。`
+    ]
+  },
+  "DRAMA+AVOID:spiky": {
+    label: "浪漫废墟建筑师·午夜版",
+    deep_dive: [
+      `你很会把生活过成一部夜里两点半才上头的电影，问题是你常常只负责前半段氛围，不太负责后半段推进。你像一只坐在屋顶边缘看月亮、顺手把心事酿得更浓的浣熊，对情绪和细节都很敏感，敏感到有时候现实还没怎样，你心里已经剪完了一版悲喜交加的预告片。你的魅力在于深、在于会感受，但你的麻烦也在这儿：你太容易在脑内把可能性养成迷宫，最后连自己都懒得走出来。`
+    ]
+  },
+  "DRAMA+AVOID:steady": {
+    label: "浪漫废墟建筑师·薄雾版",
+    deep_dive: [
+      `你不是剧烈外放的那种戏剧型浣熊，你更像一团慢慢扩散的夜雾，安静、细腻、带着一点说不清的伤感。你有很强的内在感受力，哪怕只是便利店后门吹来一阵风，你都能从里面听出一点命运感。你会给生活自动加旁白，也会给关系自动加留白。好处是你非常有灵魂，坏处是你有时会把“我还没准备好面对现实”包装成一种很诗意的停滞。说白了，你不是没想法，你只是太会在想法里久住。`
+    ]
+  },
+  "DRAMA+DO:spiky": {
+    label: "理想主义执行官·起飞版",
+    deep_dive: [
+      `你最厉害的地方，是你不光会做梦，你还真敢把梦叼起来往前跑。你像一只在深夜公园里边奔边规划未来版图的浣熊，既有情绪张力，也有行动爆发力。别人把愿望说成口号，你会直接开始试；别人感动完就散场，你能把感动变成第二天真的去做的事。这样的你很有感染力，也很容易把自己燃过头。你一旦相信某件事值得，就会冲得像刚喝完三罐功能饮料的浣熊，帅是真的，累也是真的。`
+    ]
+  },
+  "DRAMA+DO:steady": {
+    label: "理想主义执行官·热身版",
+    deep_dive: [
+      `你身上有一种很珍贵的组合：既有理想的火，又有落地的脚。你不是天天喊热血口号的熊，但你一旦被某件事打动，就会认真地往前推，像一只边整理尾巴边计划明晚行动的浣熊。你很少完全躺平，因为你对生活仍然抱着期待；你也很少纯靠蛮劲，因为你知道情绪要是没有去处，最后只会烧到自己。你的问题不是不行，而是容易太想把每一次出手都做成“有意义的版本”。`
+    ]
+  },
+  "AVOID+DO:spiky": {
+    label: "最后一刻逆袭者·冲线版",
+    deep_dive: [
+      `你这只浣熊的经典戏码是：白天像没上线，晚上突然完成奇迹。你不是不会做，你只是很擅长把启动键藏到最后一秒，然后在别人以为你要摆烂的时候猛地窜出去。说得好听点，这叫临场爆发；说得直白点，这就是把焦虑当燃料。你对压力有种危险的熟悉感，仿佛非得看到垃圾车已经拐进巷口，身体才肯全面开机。好笑的是，你每次逆袭后都说“下次一定早点”，然后下次照样熟练地拖到钟点工都想下班。`
+    ]
+  },
+  "AVOID+DO:steady": {
+    label: "最后一刻逆袭者·回魂版",
+    deep_dive: [
+      `你不是纯拖延型浣熊，你更像那种需要很长很长的预热，表面看着在发呆，内部其实一直在慢慢聚拢电量。一旦真到临界点，你又能迅速进入状态，把别人以为来不及的事做出个像样的结果。你身上有一种被低估的行动力，只是它不爱按人类上班表出现。你的可爱之处在于总能回魂，你的麻烦之处也在于总得等自己回魂。你不是没本事，你只是总把本事安排在最后登场。`
+    ]
+  }
+};
+
 /* =========================
  * 3) 状态 & DOM
  * ========================= */
@@ -173,7 +320,8 @@ const qs = {
   saveEndpointBtn: document.getElementById("save-endpoint-btn") || null,
   modelInput: document.getElementById("model-input") || null,
   aiGenerateBtn: document.getElementById("ai-generate-btn") || null,
-  aiStatus: document.getElementById("ai-status") || null
+  aiStatus: document.getElementById("ai-status") || null,
+  aiReport: document.getElementById("ai-report") || null
 };
 
 function getSavedEndpoint() {
@@ -251,9 +399,40 @@ function computeScores() {
   return scores;
 }
 
+function sortedDimsFromScores(scores) {
+  return [...DIMS].sort((a, b) => scores[b] - scores[a]);
+}
+
+function pairKeyFromScores(scores) {
+  const sorted = sortedDimsFromScores(scores);
+  return `${sorted[0]}+${sorted[1]}`;
+}
+
+function curatedVariantFromScores(scores) {
+  const sorted = sortedDimsFromScores(scores);
+  return scores[sorted[0]] - scores[sorted[1]] >= 3 ? "spiky" : "steady";
+}
+
+function curatedPairFromScores(scores) {
+  const sorted = sortedDimsFromScores(scores);
+  const candidates = [
+    `${sorted[0]}+${sorted[1]}`,
+    `${sorted[0]}+${sorted[2]}`,
+    `${sorted[1]}+${sorted[2]}`,
+    `${sorted[0]}+${sorted[3]}`,
+  ];
+
+  for (const candidate of candidates) {
+    if (CURATED_AI_REPORTS[`${candidate}:spiky`] || CURATED_AI_REPORTS[`${candidate}:steady`]) {
+      return candidate;
+    }
+  }
+
+  return "SAFE+DO";
+}
+
 function titleFromScores(scores) {
-  const sorted = [...DIMS].sort((a, b) => scores[b] - scores[a]);
-  const pair = `${sorted[0]}+${sorted[1]}`;
+  const pair = pairKeyFromScores(scores);
   return TITLE_MAP[pair] || "城市夜行观察员";
 }
 
@@ -306,7 +485,7 @@ function generateReport(scores) {
  * 6) AI 生成
  * ========================= */
 function createAiPrompt(scores, baseReport) {
-  const sorted = [...DIMS].sort((a, b) => scores[b] - scores[a]);
+  const sorted = sortedDimsFromScores(scores);
   return [
     "你是一个毒舌但善良的中文人格解读写手，风格是70%认真洞察+20%幽默+10%温柔。",
     "禁止人身攻击、精神疾病诊断、绝对化标签。",
@@ -318,6 +497,29 @@ function createAiPrompt(scores, baseReport) {
     "请输出 JSON：",
     "{\"verdict\":\"\",\"story_recap\":\"\",\"talents\":[\"\",\"\"],\"traps\":[\"\",\"\"],\"relationship_manual\":[\"\",\"\"],\"tonight_quest\":\"\"}"
   ].join("\n");
+}
+
+function getCuratedAiReport(scores) {
+  const pair = curatedPairFromScores(scores);
+  const variant = curatedVariantFromScores(scores);
+  return (
+    CURATED_AI_REPORTS[`${pair}:${variant}`] ||
+    CURATED_AI_REPORTS[`${pair}:steady`] ||
+    CURATED_AI_REPORTS["SAFE+DO:steady"]
+  );
+}
+
+function renderCuratedAiReport(entry) {
+  if (qs.aiReport) {
+    qs.aiReport.innerHTML = "";
+    entry.deep_dive.forEach((paragraph) => {
+      const p = document.createElement("p");
+      p.textContent = paragraph;
+      qs.aiReport.appendChild(p);
+    });
+  }
+
+  setStatus(`深度解读已载入：${entry.label}`);
 }
 
 async function generateAIReport(scores, baseReport) {
@@ -426,7 +628,7 @@ function renderResult() {
   });
 
   document.getElementById("result-quest").textContent = report.quest;
-  setStatus("正在自动生成 AI 报告…");
+  renderCuratedAiReport(getCuratedAiReport(scores));
 
   qs.copyBtn.onclick = async () => {
     const text = [
@@ -440,37 +642,6 @@ function renderResult() {
     qs.copyBtn.textContent = "已复制 ✅";
     setTimeout(() => (qs.copyBtn.textContent = "复制结果文案"), 1200);
   };
-
-  // 手动重试按钮只在页面上存在时启用。
-  if (qs.aiGenerateBtn) {
-    qs.aiGenerateBtn.onclick = async () => {
-      setButtonBusy(qs.aiGenerateBtn, true);
-      setStatus("AI 正在写你今天的浣熊传记…");
-      try {
-        const ai = await generateAIReport(scores, report);
-        applyAIToUI(ai.content);
-        setStatus(formatModelStatus("AI 报告已生成。", ai.model));
-      } catch (error) {
-        setStatus(`生成失败：${error.message}`);
-      } finally {
-        setButtonBusy(qs.aiGenerateBtn, false);
-      }
-    };
-  }
-
-  // 自动生成（你要的：不需要玩家再点）
-  (async () => {
-    setButtonBusy(qs.aiGenerateBtn, true);
-    try {
-      const ai = await generateAIReport(scores, report);
-      applyAIToUI(ai.content);
-      setStatus(formatModelStatus("AI 报告已自动生成。", ai.model));
-    } catch (error) {
-      setStatus(`自动生成失败：${error.message}`);
-    } finally {
-      setButtonBusy(qs.aiGenerateBtn, false);
-    }
-  })();
 }
 
 /* =========================

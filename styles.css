@@ -158,6 +158,7 @@ input {
   .app { margin-top: 10px; }
   #question-text { font-size: 17px; }
   .ai-row { flex-direction: column; }
+  .ai-report p { font-size: 20px; }
 }
 
 .result-title{
@@ -289,4 +290,16 @@ input {
 #ai-status {
   font-size: 24px;
   color: var(--anime-sub);
+}
+
+.ai-report {
+  display: grid;
+  gap: 14px;
+}
+
+.ai-report p {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.82;
+  color: var(--anime-ink);
 }
