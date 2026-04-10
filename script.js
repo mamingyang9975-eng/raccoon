@@ -505,4 +505,4 @@ generateAIReport = async function (scores, baseReport) {
     throw new Error("AI 返回格式不是 JSON");
   }
 };
-qs.endpointInput.value = getSavedEndpoint();
+if (qs.endpointInput) qs.endpointInput.value = getSavedEndpoint();
