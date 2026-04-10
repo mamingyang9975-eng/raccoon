@@ -68,10 +68,12 @@ test("report endpoint returns 500 when API key is missing", async () => {
 test("report endpoint uses configured model and unwraps OpenRouter content", async () => {
   const originalFetch = globalThis.fetch;
   let capturedModel;
+  let capturedFallbackModels;
 
   globalThis.fetch = async (_url, init) => {
     const payload = JSON.parse(init.body);
     capturedModel = payload.model;
+    capturedFallbackModels = payload.models;
 
     return new Response(
       JSON.stringify({
@@ -82,6 +84,7 @@ test("report endpoint uses configured model and unwraps OpenRouter content", asy
             },
           },
         ],
+        model: "qwen/qwen-2.5-7b-instruct:free",
       }),
       {
         status: 200,
@@ -101,16 +104,66 @@ test("report endpoint uses configured model and unwraps OpenRouter content", asy
       request,
       env: {
         OPENROUTER_API_KEY: "secret",
-        OPENROUTER_MODEL: "meta-llama/llama-3.3-8b-instruct",
+        OPENROUTER_MODEL:
+          "mistralai/mistral-small-3.1-24b-instruct:free, qwen/qwen-2.5-7b-instruct:free",
       },
     });
     const data = await response.json();
 
     assert.equal(response.status, 200);
-    assert.equal(capturedModel, "meta-llama/llama-3.3-8b-instruct");
+    assert.equal(capturedModel, "mistralai/mistral-small-3.1-24b-instruct:free");
+    assert.deepEqual(capturedFallbackModels, ["qwen/qwen-2.5-7b-instruct:free"]);
     assert.equal(data.content, "{\"verdict\":\"ok\"}");
+    assert.equal(data.model, "qwen/qwen-2.5-7b-instruct:free");
   } finally {
     globalThis.fetch = originalFetch;
   }
 });
 
+test("report endpoint returns parsed provider error details and attempted models", async () => {
+  const originalFetch = globalThis.fetch;
+
+  globalThis.fetch = async () =>
+    new Response(
+      JSON.stringify({
+        error: {
+          message: "No endpoints found for mistralai/mistral-small-3.1-24b-instruct:free",
+        },
+      }),
+      {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+  try {
+    const request = new Request("https://example.com/api/report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: "hello" }),
+    });
+
+    const response = await onReportPost({
+      request,
+      env: {
+        OPENROUTER_API_KEY: "secret",
+        OPENROUTER_MODEL:
+          "mistralai/mistral-small-3.1-24b-instruct:free, qwen/qwen-2.5-7b-instruct:free",
+      },
+    });
+    const data = await response.json();
+
+    assert.equal(response.status, 502);
+    assert.equal(data.error, "openrouter error: 404");
+    assert.equal(
+      data.message,
+      "No endpoints found for mistralai/mistral-small-3.1-24b-instruct:free"
+    );
+    assert.deepEqual(data.attemptedModels, [
+      "mistralai/mistral-small-3.1-24b-instruct:free",
+      "qwen/qwen-2.5-7b-instruct:free",
+    ]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

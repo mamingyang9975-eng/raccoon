@@ -2,11 +2,8 @@ export async function onRequestPost(context) {
   try {
     const { request, env } = context;
     const body = await request.json();
-
-    const model =
-      body?.model ||
-      env.OPENROUTER_MODEL ||
-      "meta-llama/llama-3.3-8b-instruct";
+    const models = resolveModelCandidates(body, env);
+    const [model, ...fallbackModels] = models;
 
     const prompt = body?.prompt;
     if (!prompt) {
@@ -26,6 +23,7 @@ export async function onRequestPost(context) {
       },
       body: JSON.stringify({
         model,
+        ...(fallbackModels.length ? { models: fallbackModels } : {}),
         messages: [
           { role: "system", content: "你是中文娱乐人格报告助手。" },
           { role: "user", content: prompt },
@@ -36,15 +34,21 @@ export async function onRequestPost(context) {
 
     if (!res.ok) {
       const t = await res.text();
+      const message = extractErrorMessage(t);
       return json(
-        { error: `openrouter error: ${res.status}`, detail: t.slice(0, 200) },
+        {
+          error: `openrouter error: ${res.status}`,
+          message,
+          detail: t.slice(0, 200),
+          attemptedModels: models,
+        },
         502
       );
     }
 
     const data = await res.json();
     const content = data?.choices?.[0]?.message?.content || "";
-    return json({ content }, 200);
+    return json({ content, model: data?.model || model }, 200);
   } catch (error) {
     return json(
       { error: "internal_error", detail: String(error?.message || error) },
@@ -77,3 +81,53 @@ function corsHeaders() {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 }
+
+function resolveModelCandidates(body, env) {
+  const bodyModels = Array.isArray(body?.models) ? body.models : [];
+  const candidates = normalizeModelList(
+    ...bodyModels,
+    body?.model,
+    env.OPENROUTER_MODEL
+  );
+  return candidates.length ? candidates : [...DEFAULT_MODELS];
+}
+
+function normalizeModelList(...sources) {
+  const seen = new Set();
+  const models = [];
+
+  for (const source of sources.flat()) {
+    if (typeof source !== "string") continue;
+
+    for (const raw of source.split(",")) {
+      const model = raw.trim();
+      if (!model || seen.has(model)) continue;
+      seen.add(model);
+      models.push(model);
+    }
+  }
+
+  return models;
+}
+
+function extractErrorMessage(text) {
+  if (!text) return "OpenRouter 请求失败";
+
+  try {
+    const parsed = JSON.parse(text);
+    return (
+      parsed?.error?.message ||
+      parsed?.message ||
+      String(parsed?.error || "").trim() ||
+      text.slice(0, 200)
+    );
+  } catch {
+    return text.slice(0, 200);
+  }
+}
+
+const DEFAULT_MODELS = [
+  "mistralai/mistral-small-3.1-24b-instruct:free",
+  "qwen/qwen-2.5-7b-instruct:free",
+  "meta-llama/llama-3.3-8b-instruct",
+];

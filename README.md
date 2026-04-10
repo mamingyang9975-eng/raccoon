@@ -33,8 +33,8 @@ npm test
    - Build output directory: 留空
 4. 在 Pages 项目设置 -> Environment variables 增加：
    - `OPENROUTER_API_KEY` = 你的 OpenRouter Key
-   - `OPENROUTER_MODEL` = `meta-llama/llama-3.3-8b-instruct`（可改）
+   - `OPENROUTER_MODEL` = `mistralai/mistral-small-3.1-24b-instruct:free, qwen/qwen-2.5-7b-instruct:free`
    - `SITE_URL` = 你的 Pages 域名（可选）
 5. 重新部署。
 
-部署后前端默认请求 `/api/report`，由 `functions/api/report.js` 代理到 OpenRouter 免费模型。
+部署后前端默认请求 `/api/report`，由 `functions/api/report.js` 代理到 OpenRouter，并按顺序自动尝试候选模型。
