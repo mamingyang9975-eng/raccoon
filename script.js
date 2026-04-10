@@ -480,5 +480,29 @@ qs.saveEndpointBtn.onclick = () => {
   localStorage.setItem("ai_proxy_endpoint", endpoint);
   setStatus("API 地址已保存。");
 };
+// 覆盖旧的 generateAIReport：固定 endpoint + model，不用输入框
+generateAIReport = async function (scores, baseReport) {
+  const endpoint = "/api/report";
+  const model = "meta-llama/llama-3.3-8b-instruct:free";
+  const prompt = createAiPrompt(scores, baseReport);
 
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model, prompt })
+  });
+
+  if (!response.ok) {
+    const t = await response.text();
+    throw new Error(`AI 请求失败：${response.status} ${t.slice(0, 120)}`);
+  }
+
+  const data = await response.json();
+  const cleaned = (data?.content || "").replace(/```json|```/g, "").trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    throw new Error("AI 返回格式不是 JSON");
+  }
+};
 qs.endpointInput.value = getSavedEndpoint();
