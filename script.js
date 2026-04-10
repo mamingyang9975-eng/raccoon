@@ -182,6 +182,21 @@ function getSavedEndpoint() {
 function setStatus(text) {
   if (qs.aiStatus) qs.aiStatus.textContent = text;
 }
+
+function setButtonBusy(button, disabled) {
+  if (button) button.disabled = disabled;
+}
+
+function setAvatarImage(img, title) {
+  if (!img) return;
+
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = "./raccoon.jpg";
+  };
+  img.src = `/api/avatar?title=${encodeURIComponent(title)}`;
+}
+
 function show(screen) {
   [qs.start, qs.quiz, qs.result].forEach(s => s.classList.remove("active"));
   screen.classList.add("active");
@@ -371,12 +386,9 @@ function applyAIToUI(ai) {
  * ========================= */
 function renderResult() {
   const scores = computeScores();
-const report = generateReport(scores);
+  const report = generateReport(scores);
 
-const avatar = document.getElementById("raccoon-avatar");
-if (avatar) {
-  avatar.src = `/api/avatar?title=${encodeURIComponent(report.title)}`;
-}
+  setAvatarImage(document.getElementById("raccoon-avatar"), report.title);
 
   // 你要的醒目标题：固定“夜行观察员”
   document.getElementById("result-title").textContent = "夜行观察员";
@@ -423,24 +435,26 @@ if (avatar) {
     setTimeout(() => (qs.copyBtn.textContent = "复制结果文案"), 1200);
   };
 
-  // 手动重试按钮保留
-  qs.aiGenerateBtn.onclick = async () => {
-    qs.aiGenerateBtn.disabled = true;
-    setStatus("AI 正在写你今天的浣熊传记…");
-    try {
-      const ai = await generateAIReport(scores, report);
-      applyAIToUI(ai);
-      setStatus("AI 报告已生成（免费模型）。");
-    } catch (error) {
-      setStatus(`生成失败：${error.message}`);
-    } finally {
-      qs.aiGenerateBtn.disabled = false;
-    }
-  };
+  // 手动重试按钮只在页面上存在时启用。
+  if (qs.aiGenerateBtn) {
+    qs.aiGenerateBtn.onclick = async () => {
+      setButtonBusy(qs.aiGenerateBtn, true);
+      setStatus("AI 正在写你今天的浣熊传记…");
+      try {
+        const ai = await generateAIReport(scores, report);
+        applyAIToUI(ai);
+        setStatus("AI 报告已生成（免费模型）。");
+      } catch (error) {
+        setStatus(`生成失败：${error.message}`);
+      } finally {
+        setButtonBusy(qs.aiGenerateBtn, false);
+      }
+    };
+  }
 
   // 自动生成（你要的：不需要玩家再点）
   (async () => {
-    qs.aiGenerateBtn.disabled = true;
+    setButtonBusy(qs.aiGenerateBtn, true);
     try {
       const ai = await generateAIReport(scores, report);
       applyAIToUI(ai);
@@ -448,7 +462,7 @@ if (avatar) {
     } catch (error) {
       setStatus(`自动生成失败：${error.message}`);
     } finally {
-      qs.aiGenerateBtn.disabled = false;
+      setButtonBusy(qs.aiGenerateBtn, false);
     }
   })();
 }
