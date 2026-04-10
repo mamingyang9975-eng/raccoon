@@ -174,71 +174,119 @@ input {
   object-fit: contain;
 }
 
-/* ===== 结果页头图区域：先声夺人 ===== */
+
+
+/* ===== 二次元绿黄主题色盘 ===== */
+:root {
+  --anime-bg: #f5fff5;
+  --anime-card: #effcf0;
+  --anime-green-900: #0d4d3a;
+  --anime-green-700: #1f7a5b;
+  --anime-green-500: #2fa06f;
+  --anime-yellow-500: #ffd84d;
+  --anime-yellow-600: #f5c400;
+  --anime-ink: #1f3b33;
+  --anime-sub: #3f665a;
+  --anime-border: #b6e2c2;
+}
+
+/* 页面主卡片轻微提亮 */
+#result-screen.card {
+  background: var(--anime-bg);
+  border: 2px solid var(--anime-border);
+  box-shadow: 0 12px 28px rgba(31, 122, 91, 0.12);
+}
+
+/* ===== 头部冲击感 ===== */
 .result-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  margin: 6px 0 12px;
+  margin: 4px 0 14px;
 }
 
 .raccoon-sticker {
-  width: 128px;
-  height: 128px;
+  width: 132px;
+  height: 132px;
   object-fit: contain;
   border-radius: 18px;
-  box-shadow: 0 8px 20px rgba(18, 86, 68, 0.18);
+  border: 3px solid var(--anime-yellow-500);
+  background: #fff;
+  box-shadow:
+    0 8px 0 var(--anime-yellow-600),
+    0 14px 24px rgba(0, 0, 0, 0.12);
 }
 
-/* 大标题：夜行观察员 */
+/* 夜行观察员 */
 #result-title,
 .result-title {
   font-size: 68px;
   line-height: 1.02;
   font-weight: 900;
   letter-spacing: 3px;
-  color: #0f3f34;
   margin: 0;
-  text-shadow: 0 2px 0 #fff, 0 10px 20px rgba(26, 110, 88, 0.28);
+  color: var(--anime-green-900);
+  text-shadow:
+    0 2px 0 #fff,
+    0 6px 0 rgba(255, 216, 77, 0.75),
+    0 12px 20px rgba(31, 122, 91, 0.26);
 }
 
-/* 你说的“小字”= verdict 副标题 */
+/* 你是“夜行观察员”这行：放大并强化 */
 #result-verdict,
 .verdict {
-  font-size: 36px;       /* 这里就是你要放大的 */
+  font-size: 34px;
   line-height: 1.45;
-  font-weight: 700;
-  color: #1f5548;
-  background: linear-gradient(135deg, #f3fffb 0%, #e8f7f2 100%);
-  border: 2px solid #b8dfcf;
-  border-radius: 18px;
-  padding: 18px 20px;
+  font-weight: 800;
+  color: var(--anime-sub);
+  background: linear-gradient(135deg, #ffffff 0%, var(--anime-card) 100%);
+  border: 2px solid var(--anime-border);
+  border-left: 10px solid var(--anime-yellow-500);
+  border-radius: 16px;
+  padding: 16px 18px;
   margin: 14px 0 18px;
 }
 
-/* ===== 下面“标题字母和内容颜色区分” ===== */
+/* ===== 下方内容：标题与正文分色 ===== */
+.result-block {
+  background: #ffffffcc;
+  border: 1px dashed var(--anime-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 12px 0;
+}
+
 .result-block h3 {
-  font-size: 36px;
+  font-size: 35px;
   font-weight: 900;
-  color: #4d2f8f;           /* 标题紫 */
+  color: var(--anime-green-700); /* 标题绿 */
   margin-bottom: 10px;
   letter-spacing: 1px;
+  position: relative;
+  padding-left: 14px;
+}
+
+.result-block h3::before {
+  content: "✦";
+  position: absolute;
+  left: 0;
+  color: var(--anime-yellow-600); /* 点缀黄 */
 }
 
 .result-block p,
 .result-block li {
-  font-size: 30px;
+  font-size: 29px;
   line-height: 1.65;
-  color: #26463d;           /* 正文深绿 */
+  color: var(--anime-ink); /* 正文深墨绿 */
 }
 
 .result-block li::marker {
-  color: #f08a24;           /* 列表点橙色，更活泼 */
+  color: var(--anime-yellow-600);
 }
 
-/* AI状态也明显一点 */
+/* AI状态 */
 #ai-status {
-  font-size: 26px;
-  color: #3f5c54;
+  font-size: 24px;
+  color: var(--anime-sub);
 }
