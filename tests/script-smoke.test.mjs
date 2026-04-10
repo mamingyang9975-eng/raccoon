@@ -73,6 +73,7 @@ test("script.js can render the result screen in a minimal DOM", async () => {
     fetch: async () =>
       new Response(
         JSON.stringify({
+          model: "qwen/qwen-2.5-7b-instruct:free",
           content: JSON.stringify({
             verdict: "AI verdict",
             story_recap: "AI story",
@@ -107,5 +108,8 @@ test("script.js can render the result screen in a minimal DOM", async () => {
   assert.match(elements["raccoon-avatar"].src, /\/api\/avatar\?title=/);
   assert.equal(elements["result-verdict"].textContent, "AI verdict");
   assert.equal(elements["result-quest"].textContent, "g");
-  assert.equal(elements["ai-status"].textContent, "AI 报告已自动生成。");
+  assert.equal(
+    elements["ai-status"].textContent,
+    "AI 报告已自动生成。 当前模型：qwen/qwen-2.5-7b-instruct:free"
+  );
 });
