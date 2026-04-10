@@ -53,19 +53,10 @@
   <h2 id="result-title" class="result-title"></h2>
 </div>
 <p id="result-verdict" class="verdict"></p>
-        <div class="ai-box">
-          <h3>AI 深度解读（免费模型）</h3>
-          <p class="ai-tip">默认调用你部署的免费 Cloudflare API 代理，不在前端暴露密钥。</p>
-          <div class="ai-row">
-            <input id="endpoint-input" type="text" placeholder="API 地址（默认 /api/report）" />
-            <button id="save-endpoint-btn" class="ghost">保存地址</button>
-          </div>
-          <div class="ai-row">
-            <input id="model-input" type="text" value="meta-llama/llama-3.3-8b-instruct:free" />
-            <button id="ai-generate-btn">生成AI报告</button>
-          </div>
-          <p id="ai-status" class="ai-tip"></p>
-        </div>
+       <div class="ai-box ai-output-only">
+  <h3>深度解读</h3>
+  <p id="ai-status" class="ai-tip">正在生成...</p>
+</div>
 
         <div class="result-block">
           <h3>今日剧情回放</h3>
