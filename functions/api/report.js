@@ -3,7 +3,6 @@ export async function onRequestPost(context) {
     const { request, env } = context;
     const body = await request.json();
     const models = resolveModelCandidates(body, env);
-    const [model, ...fallbackModels] = models;
 
     const prompt = body?.prompt;
     if (!prompt) {
@@ -13,42 +12,29 @@ export async function onRequestPost(context) {
       return json({ error: "server missing OPENROUTER_API_KEY" }, 500);
     }
 
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": env.SITE_URL || "https://example.com",
-        "X-Title": "Raccoon Story Quiz",
-      },
-      body: JSON.stringify({
-        model,
-        ...(fallbackModels.length ? { models: fallbackModels } : {}),
-        messages: [
-          { role: "system", content: "你是中文娱乐人格报告助手。" },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.8,
-      }),
-    });
+    let lastError = null;
 
-    if (!res.ok) {
-      const t = await res.text();
-      const message = extractErrorMessage(t);
-      return json(
-        {
-          error: `openrouter error: ${res.status}`,
-          message,
-          detail: t.slice(0, 200),
-          attemptedModels: models,
-        },
-        502
-      );
+    for (const model of models) {
+      const result = await requestOpenRouter({ env, model, prompt });
+      if (result.ok) {
+        return json({ content: result.content, model: result.model }, 200);
+      }
+
+      lastError = result.error;
+      if (!shouldRetryWithNextModel(lastError)) {
+        break;
+      }
     }
 
-    const data = await res.json();
-    const content = data?.choices?.[0]?.message?.content || "";
-    return json({ content, model: data?.model || model }, 200);
+    return json(
+      {
+        error: `openrouter error: ${lastError?.status || 502}`,
+        message: lastError?.message || "OpenRouter 请求失败",
+        detail: lastError?.detail || "",
+        attemptedModels: models,
+      },
+      502
+    );
   } catch (error) {
     return json(
       { error: "internal_error", detail: String(error?.message || error) },
@@ -87,9 +73,10 @@ function resolveModelCandidates(body, env) {
   const candidates = normalizeModelList(
     ...bodyModels,
     body?.model,
-    env.OPENROUTER_MODEL
+    env.OPENROUTER_MODEL,
+    ...DEFAULT_MODELS
   );
-  return candidates.length ? candidates : [...DEFAULT_MODELS];
+  return candidates;
 }
 
 function normalizeModelList(...sources) {
@@ -127,7 +114,53 @@ function extractErrorMessage(text) {
 }
 
 const DEFAULT_MODELS = [
-  "mistralai/mistral-small-3.1-24b-instruct:free",
-  "qwen/qwen-2.5-7b-instruct:free",
-  "meta-llama/llama-3.3-8b-instruct",
+  "openrouter/free",
 ];
+
+async function requestOpenRouter({ env, model, prompt }) {
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
+      "HTTP-Referer": env.SITE_URL || "https://example.com",
+      "X-Title": "Raccoon Story Quiz",
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: "你是中文娱乐人格报告助手。" },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.8,
+    }),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text();
+    return {
+      ok: false,
+      error: {
+        status: res.status,
+        message: extractErrorMessage(detail),
+        detail: detail.slice(0, 200),
+      },
+    };
+  }
+
+  const data = await res.json();
+  return {
+    ok: true,
+    content: data?.choices?.[0]?.message?.content || "",
+    model: data?.model || model,
+  };
+}
+
+function shouldRetryWithNextModel(error) {
+  if (!error) return false;
+
+  return (
+    error.status === 404 ||
+    /No endpoints found for/i.test(error.message || "")
+  );
+}

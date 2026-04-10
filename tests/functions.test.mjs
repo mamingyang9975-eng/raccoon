@@ -68,12 +68,10 @@ test("report endpoint returns 500 when API key is missing", async () => {
 test("report endpoint uses configured model and unwraps OpenRouter content", async () => {
   const originalFetch = globalThis.fetch;
   let capturedModel;
-  let capturedFallbackModels;
 
   globalThis.fetch = async (_url, init) => {
     const payload = JSON.parse(init.body);
     capturedModel = payload.model;
-    capturedFallbackModels = payload.models;
 
     return new Response(
       JSON.stringify({
@@ -112,9 +110,76 @@ test("report endpoint uses configured model and unwraps OpenRouter content", asy
 
     assert.equal(response.status, 200);
     assert.equal(capturedModel, "mistralai/mistral-small-3.1-24b-instruct:free");
-    assert.deepEqual(capturedFallbackModels, ["qwen/qwen-2.5-7b-instruct:free"]);
     assert.equal(data.content, "{\"verdict\":\"ok\"}");
     assert.equal(data.model, "qwen/qwen-2.5-7b-instruct:free");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("report endpoint retries the next candidate when a model has no available endpoints", async () => {
+  const originalFetch = globalThis.fetch;
+  const seenModels = [];
+
+  globalThis.fetch = async (_url, init) => {
+    const payload = JSON.parse(init.body);
+    seenModels.push(payload.model);
+
+    if (payload.model === "mistralai/mistral-small-3.1-24b-instruct:free") {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: "No endpoints found for mistralai/mistral-small-3.1-24b-instruct:free",
+          },
+        }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({
+        choices: [
+          {
+            message: {
+              content: "{\"verdict\":\"fallback ok\"}",
+            },
+          },
+        ],
+        model: "openrouter/free",
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  };
+
+  try {
+    const request = new Request("https://example.com/api/report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: "hello" }),
+    });
+
+    const response = await onReportPost({
+      request,
+      env: {
+        OPENROUTER_API_KEY: "secret",
+        OPENROUTER_MODEL: "mistralai/mistral-small-3.1-24b-instruct:free",
+      },
+    });
+    const data = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(seenModels, [
+      "mistralai/mistral-small-3.1-24b-instruct:free",
+      "openrouter/free",
+    ]);
+    assert.equal(data.content, "{\"verdict\":\"fallback ok\"}");
+    assert.equal(data.model, "openrouter/free");
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -123,11 +188,12 @@ test("report endpoint uses configured model and unwraps OpenRouter content", asy
 test("report endpoint returns parsed provider error details and attempted models", async () => {
   const originalFetch = globalThis.fetch;
 
-  globalThis.fetch = async () =>
-    new Response(
+  globalThis.fetch = async (_url, init) => {
+    const payload = JSON.parse(init.body);
+    return new Response(
       JSON.stringify({
         error: {
-          message: "No endpoints found for mistralai/mistral-small-3.1-24b-instruct:free",
+          message: `No endpoints found for ${payload.model}`,
         },
       }),
       {
@@ -135,6 +201,7 @@ test("report endpoint returns parsed provider error details and attempted models
         headers: { "Content-Type": "application/json" },
       }
     );
+  };
 
   try {
     const request = new Request("https://example.com/api/report", {
@@ -157,11 +224,12 @@ test("report endpoint returns parsed provider error details and attempted models
     assert.equal(data.error, "openrouter error: 404");
     assert.equal(
       data.message,
-      "No endpoints found for mistralai/mistral-small-3.1-24b-instruct:free"
+      "No endpoints found for openrouter/free"
     );
     assert.deepEqual(data.attemptedModels, [
       "mistralai/mistral-small-3.1-24b-instruct:free",
       "qwen/qwen-2.5-7b-instruct:free",
+      "openrouter/free",
     ]);
   } finally {
     globalThis.fetch = originalFetch;

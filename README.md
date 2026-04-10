@@ -33,9 +33,10 @@ npm test
    - Build output directory: 留空
 4. 在 Pages 项目设置 -> Environment variables 增加：
    - `OPENROUTER_API_KEY` = 你的 OpenRouter Key
-   - `OPENROUTER_MODEL` = `mistralai/mistral-small-3.1-24b-instruct:free, qwen/qwen-2.5-7b-instruct:free`
+   - `OPENROUTER_MODEL` = `openrouter/free`
 
-   - `SITE_URL` = 你的 Pages 域名（可选）
+
+   - `SITE_URL` = https://raccoon-1pc.pages.dev/
 5. 重新部署。
 
-部署后前端默认请求 `/api/report`，由 `functions/api/report.js` 代理到 OpenRouter，并按顺序自动尝试候选模型。
+部署后前端默认请求 `/api/report`，由 `functions/api/report.js` 代理到 OpenRouter。后端会优先使用 `openrouter/free`，并在遇到 `No endpoints found` 这类 404 路由错误时自动切换到下一个候选模型。
