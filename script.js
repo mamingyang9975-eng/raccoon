@@ -506,3 +506,4 @@ generateAIReport = async function (scores, baseReport) {
   }
 };
 if (qs.endpointInput) qs.endpointInput.value = getSavedEndpoint();
+
