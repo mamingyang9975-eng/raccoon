@@ -1,1 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>浣熊今天怎么活</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section id="start-screen" class="card active">
+        <h1>🦝 浣熊今天怎么活</h1>
+        <p class="subtitle">不是人格测试，是一部你亲手导演的浣熊小剧场。</p>
+        <p>
+          你将陪一只城市浣熊度过一天：觅食、社交、整活、逃跑、深夜独白。
+          每次选择都在悄悄暴露你的“生存习惯”。
+        </p>
+        <ul>
+          <li>共 24 题，约 4 分钟</li>
+          <li>维度已隐藏，不会有标准答案</li>
+          <li>最后由 AI 风格引擎生成报告（娱乐向）</li>
+        </ul>
+        <button id="start-btn">开始今天的剧情</button>
+      </section>
+
+      <section id="quiz-screen" class="card">
+        <header class="quiz-header">
+          <div class="progress-text"><span id="progress-current">1</span> / <span id="progress-total">24</span></div>
+          <div class="progress-bar"><div id="progress-fill"></div></div>
+        </header>
+
+        <div class="pill-row">
+          <span id="scene-pill" class="pill"></span>
+          <span class="pill muted">维度已隐藏</span>
+        </div>
+
+        <article>
+          <h2 id="question-title"></h2>
+          <p id="question-text"></p>
+        </article>
+
+        <div id="options" class="options"></div>
+
+        <footer class="quiz-footer">
+          <button id="prev-btn" class="ghost">上一题</button>
+          <button id="next-btn" disabled>下一题</button>
+        </footer>
+      </section>
+
+      <section id="result-screen" class="card">
+        <h2 id="result-title"></h2>
+        <p id="result-verdict" class="verdict"></p>
+        <div class="ai-box">
+          <h3>AI 深度解读（免费模型）</h3>
+          <p class="ai-tip">默认调用你部署的免费 Cloudflare API 代理，不在前端暴露密钥。</p>
+          <div class="ai-row">
+            <input id="endpoint-input" type="text" placeholder="API 地址（默认 /api/report）" />
+            <button id="save-endpoint-btn" class="ghost">保存地址</button>
+          </div>
+          <div class="ai-row">
+            <input id="model-input" type="text" value="meta-llama/llama-3.3-8b-instruct:free" />
+            <button id="ai-generate-btn">生成AI报告</button>
+          </div>
+          <p id="ai-status" class="ai-tip"></p>
+        </div>
+
+        <div class="result-block">
+          <h3>今日剧情回放</h3>
+          <p id="result-recap"></p>
+        </div>
+
+        <div class="result-block">
+          <h3>你的生存天赋</h3>
+          <ul id="result-talents"></ul>
+        </div>
+
+        <div class="result-block">
+          <h3>你的惯性陷阱</h3>
+          <ul id="result-traps"></ul>
+        </div>
+
+        <div class="result-block">
+          <h3>关系说明书</h3>
+          <ul id="result-manual"></ul>
+        </div>
+
+        <div class="result-block">
+          <h3>今晚任务</h3>
+          <p id="result-quest"></p>
+        </div>
+
+        <div class="result-actions">
+          <button id="copy-btn" class="ghost">复制结果文案</button>
+          <button id="restart-btn">再测一次</button>
+        </div>
+
+        <p class="disclaimer">* 本测试为剧情娱乐，不构成心理或医疗建议。</p>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
 
