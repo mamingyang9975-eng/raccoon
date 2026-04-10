@@ -312,7 +312,7 @@ async function generateAIReport(scores, baseReport) {
 
   if (!response.ok) {
     const t = await response.text();
-    throw new Error(`AI 请求失败：${response.status} ${t.slice(0, 120)}`);
+   throw new Error(`AI 请求失败：${response.status} ${t}`);
   }
 
   const data = await response.json();
