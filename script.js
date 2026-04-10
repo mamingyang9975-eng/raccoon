@@ -121,6 +121,14 @@ const QUESTIONS = [
   ]]
  ];
 const DIMS = ["MASK", "SAFE", "SOCIAL", "AVOID", "DRAMA", "DO"];
+const DIM_META = [
+  { key: "MASK", label: "体面" },
+  { key: "SAFE", label: "安全感" },
+  { key: "SOCIAL", label: "社交温度" },
+  { key: "AVOID", label: "回避倾向" },
+  { key: "DRAMA", label: "戏剧感" },
+  { key: "DO", label: "执行力" },
+];
 
 const TITLE_MAP = {
   "MASK+SAFE": "体面生存架构师",
@@ -294,6 +302,7 @@ const CURATED_AI_REPORTS = {
     ]
   }
 };
+const CHART_MAX_SCORES = calculateChartMaxScores();
 
 /* =========================
  * 3) 状态 & DOM
@@ -321,7 +330,8 @@ const qs = {
   modelInput: document.getElementById("model-input") || null,
   aiGenerateBtn: document.getElementById("ai-generate-btn") || null,
   aiStatus: document.getElementById("ai-status") || null,
-  aiReport: document.getElementById("ai-report") || null
+  aiReport: document.getElementById("ai-report") || null,
+  radarChart: document.getElementById("radar-chart") || null
 };
 
 function getSavedEndpoint() {
@@ -522,6 +532,119 @@ function renderCuratedAiReport(entry) {
   setStatus(`深度解读已载入：${entry.label}`);
 }
 
+function calculateChartMaxScores() {
+  const maxScores = Object.fromEntries(DIMS.map((dim) => [dim, 1]));
+
+  QUESTIONS.forEach(([, , options]) => {
+    DIMS.forEach((dim) => {
+      const bestContribution = Math.max(
+        0,
+        ...options.map(([, effect]) => Number(effect[dim] || 0))
+      );
+      maxScores[dim] += bestContribution;
+    });
+  });
+
+  return maxScores;
+}
+
+function renderRadarChart(scores) {
+  if (!qs.radarChart) return;
+
+  const size = 420;
+  const center = size / 2;
+  const radius = 120;
+  const levels = 5;
+  const startAngle = -Math.PI / 2;
+
+  const pointFor = (index, scale) => {
+    const angle = startAngle + (Math.PI * 2 * index) / DIM_META.length;
+    return {
+      x: center + Math.cos(angle) * radius * scale,
+      y: center + Math.sin(angle) * radius * scale,
+      angle,
+    };
+  };
+
+  const gridPolygons = Array.from({ length: levels }, (_, idx) => {
+    const scale = (idx + 1) / levels;
+    const points = DIM_META.map((_, pointIndex) => {
+      const point = pointFor(pointIndex, scale);
+      return `${point.x.toFixed(1)},${point.y.toFixed(1)}`;
+    }).join(" ");
+    return `<polygon points="${points}" class="radar-grid radar-grid-${idx + 1}"></polygon>`;
+  }).join("");
+
+  const spokes = DIM_META.map((_, index) => {
+    const point = pointFor(index, 1);
+    return `<line x1="${center}" y1="${center}" x2="${point.x.toFixed(1)}" y2="${point.y.toFixed(1)}" class="radar-spoke"></line>`;
+  }).join("");
+
+  const dataPoints = DIM_META.map((meta, index) => {
+    const value = Math.max(0, Number(scores[meta.key] || 0));
+    const max = Math.max(1, CHART_MAX_SCORES[meta.key] || 1);
+    const scale = Math.min(1, value / max);
+    const point = pointFor(index, scale);
+    return {
+      ...point,
+      meta,
+      value,
+      percent: Math.round(scale * 100),
+    };
+  });
+
+  const dataPolygon = dataPoints
+    .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
+    .join(" ");
+
+  const dots = dataPoints
+    .map(
+      (point) =>
+        `<circle cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="5.5" class="radar-dot"></circle>`
+    )
+    .join("");
+
+  const labels = DIM_META.map((meta, index) => {
+    const point = pointFor(index, 1.24);
+    const anchor =
+      Math.cos(point.angle) > 0.2 ? "start" : Math.cos(point.angle) < -0.2 ? "end" : "middle";
+    return `<text x="${point.x.toFixed(1)}" y="${point.y.toFixed(1)}" text-anchor="${anchor}" class="radar-label">${meta.label}</text>`;
+  }).join("");
+
+  const rings = Array.from({ length: levels }, (_, idx) => {
+    const scale = (idx + 1) / levels;
+    const labelValue = Math.round(scale * 100);
+    const y = center - radius * scale + 12;
+    return `<text x="${center}" y="${y.toFixed(1)}" text-anchor="middle" class="radar-ring-label">${labelValue}%</text>`;
+  }).join("");
+
+  const stats = dataPoints
+    .map(
+      (point) => `
+        <div class="radar-stat">
+          <span class="radar-stat-label">${point.meta.label}</span>
+          <strong>${point.percent}%</strong>
+        </div>
+      `
+    )
+    .join("");
+
+  qs.radarChart.innerHTML = `
+    <div class="radar-shell">
+      <svg viewBox="0 0 ${size} ${size}" class="radar-svg" aria-label="浣熊六维图谱">
+        ${gridPolygons}
+        ${spokes}
+        <polygon points="${dataPolygon}" class="radar-area"></polygon>
+        <polyline points="${dataPolygon}" class="radar-outline"></polyline>
+        ${dots}
+        ${labels}
+        ${rings}
+      </svg>
+      <div class="radar-stats">${stats}</div>
+    </div>
+  `;
+}
+
 async function generateAIReport(scores, baseReport) {
   const endpoint = getSavedEndpoint();
   const model = qs.modelInput.value.trim();
@@ -601,6 +724,7 @@ function renderResult() {
   // 你要的醒目标题：固定“夜行观察员”
   document.getElementById("result-title").textContent = "夜行观察员";
   document.getElementById("result-verdict").textContent = report.verdict;
+  renderRadarChart(scores);
   document.getElementById("result-recap").textContent = report.recap;
 
   const talentsEl = document.getElementById("result-talents");

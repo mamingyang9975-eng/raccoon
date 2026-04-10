@@ -13,6 +13,8 @@ async function finishQuiz(page, optionIndex = 0) {
 test("local deep report is rendered directly on the result screen", async ({ page }) => {
   await finishQuiz(page, 0);
 
+  await expect(page.locator("#radar-chart svg")).toBeVisible();
+  await expect(page.locator("#radar-chart")).toContainText("体面");
   await expect(page.locator("#ai-status")).toContainText("深度解读已载入：");
   await expect(page.locator("#ai-report")).not.toBeEmpty();
   await expect(page.locator("#ai-report")).toContainText("浣熊");
@@ -24,6 +26,7 @@ test("local deep report is rendered directly on the result screen", async ({ pag
 test("different answer patterns receive different local deep reports", async ({ page }) => {
   await finishQuiz(page, 0);
   const firstReport = await page.locator("#ai-report").textContent();
+  const firstChart = await page.locator("#radar-chart").innerHTML();
 
   await page.getByRole("button", { name: "再测一次" }).click();
   await page.getByRole("button", { name: "开始今天的剧情" }).click();
@@ -34,6 +37,8 @@ test("different answer patterns receive different local deep reports", async ({ 
   }
 
   const secondReport = await page.locator("#ai-report").textContent();
+  const secondChart = await page.locator("#radar-chart").innerHTML();
   await expect(page.locator("#ai-status")).toContainText("深度解读已载入：");
   expect(firstReport).not.toEqual(secondReport);
+  expect(firstChart).not.toEqual(secondChart);
 });

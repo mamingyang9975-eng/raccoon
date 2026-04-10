@@ -275,6 +275,96 @@ input {
   color: var(--anime-yellow-600); /* 点缀黄 */
 }
 
+.radar-block {
+  overflow: hidden;
+}
+
+.radar-chart {
+  margin-top: 8px;
+}
+
+.radar-shell {
+  display: grid;
+  gap: 18px;
+  align-items: center;
+}
+
+.radar-svg {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  display: block;
+  overflow: visible;
+}
+
+.radar-grid {
+  fill: rgba(255, 255, 255, 0.72);
+  stroke: rgba(31, 122, 91, 0.18);
+  stroke-width: 1.5;
+}
+
+.radar-spoke {
+  stroke: rgba(31, 122, 91, 0.18);
+  stroke-width: 1.5;
+}
+
+.radar-area {
+  fill: rgba(47, 160, 111, 0.20);
+  stroke: none;
+}
+
+.radar-outline {
+  fill: none;
+  stroke: #2fa06f;
+  stroke-width: 4;
+  stroke-linejoin: round;
+}
+
+.radar-dot {
+  fill: #ffd84d;
+  stroke: #1f7a5b;
+  stroke-width: 2.5;
+}
+
+.radar-label {
+  font-size: 18px;
+  font-weight: 800;
+  fill: #1f7a5b;
+}
+
+.radar-ring-label {
+  font-size: 13px;
+  font-weight: 700;
+  fill: rgba(31, 59, 51, 0.42);
+}
+
+.radar-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.radar-stat {
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(239,252,240,.96));
+  border: 1px solid var(--anime-border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(31, 122, 91, 0.08);
+}
+
+.radar-stat-label {
+  display: block;
+  font-size: 15px;
+  color: var(--anime-sub);
+  margin-bottom: 4px;
+}
+
+.radar-stat strong {
+  font-size: 22px;
+  color: var(--anime-green-900);
+}
+
 .result-block p,
 .result-block li {
   font-size: 29px;
@@ -302,4 +392,10 @@ input {
   font-size: 28px;
   line-height: 1.82;
   color: var(--anime-ink);
+}
+
+@media (max-width: 600px) {
+  .radar-label { font-size: 15px; }
+  .radar-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .radar-stat strong { font-size: 20px; }
 }
