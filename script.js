@@ -331,7 +331,9 @@ const qs = {
   aiGenerateBtn: document.getElementById("ai-generate-btn") || null,
   aiStatus: document.getElementById("ai-status") || null,
   aiReport: document.getElementById("ai-report") || null,
-  radarChart: document.getElementById("radar-chart") || null
+  radarChart: document.getElementById("radar-chart") || null,
+  resultArchetype: document.getElementById("result-archetype") || null,
+  resultSubtitles: document.getElementById("result-subtitles") || null
 };
 
 function getSavedEndpoint() {
@@ -453,7 +455,7 @@ function subtitlesFromScores(scores) {
 function generateReport(scores) {
   const title = titleFromScores(scores);
   const subs = subtitlesFromScores(scores);
-  const verdict = `你是「${title}」${subs.length ? `（${subs.join(" / ")}）` : ""}。你不是没想法，你只是把“想法”先寄存在明天。`;
+  const verdict = "你不是没想法，你只是把“想法”先寄存在明天。";
 
   const talents = [];
   if (scores.SAFE >= 8) talents.push("你有风险雷达，遇事不会第一时间把自己送走。");
@@ -488,7 +490,16 @@ function generateReport(scores) {
 
   const recap = "从下水道醒来到天亮前收尾，你一路在‘体面、效率、情绪和安全感’之间做权衡。你不是没有勇气，而是太懂代价，所以总在冲动和克制之间拉扯。";
 
-  return { title, verdict, recap, talents: talents.slice(0, 3), traps: traps.slice(0, 2), manual, quest };
+  return {
+    title,
+    subtitles: subs,
+    verdict,
+    recap,
+    talents: talents.slice(0, 3),
+    traps: traps.slice(0, 2),
+    manual,
+    quest
+  };
 }
 
 /* =========================
@@ -532,6 +543,20 @@ function renderCuratedAiReport(entry) {
   setStatus(`深度解读已载入：${entry.label}`);
 }
 
+function renderIdentityPanel(report) {
+  if (qs.resultArchetype) qs.resultArchetype.textContent = report.title;
+
+  if (qs.resultSubtitles) {
+    qs.resultSubtitles.innerHTML = "";
+    report.subtitles.forEach((subtitle) => {
+      const span = document.createElement("span");
+      span.className = "identity-chip";
+      span.textContent = subtitle;
+      qs.resultSubtitles.appendChild(span);
+    });
+  }
+}
+
 function calculateChartMaxScores() {
   const maxScores = Object.fromEntries(DIMS.map((dim) => [dim, 1]));
 
@@ -556,6 +581,7 @@ function renderRadarChart(scores) {
   const radius = 120;
   const levels = 5;
   const startAngle = -Math.PI / 2;
+  const minDisplayScale = 0.18;
 
   const pointFor = (index, scale) => {
     const angle = startAngle + (Math.PI * 2 * index) / DIM_META.length;
@@ -583,13 +609,15 @@ function renderRadarChart(scores) {
   const dataPoints = DIM_META.map((meta, index) => {
     const value = Math.max(0, Number(scores[meta.key] || 0));
     const max = Math.max(1, CHART_MAX_SCORES[meta.key] || 1);
-    const scale = Math.min(1, value / max);
-    const point = pointFor(index, scale);
+    const rawScale = Math.min(1, value / max);
+    const displayScale =
+      rawScale <= 0 ? 0 : minDisplayScale + rawScale * (1 - minDisplayScale);
+    const point = pointFor(index, displayScale);
     return {
       ...point,
       meta,
       value,
-      percent: Math.round(scale * 100),
+      percent: Math.round(rawScale * 100),
     };
   });
 
@@ -723,6 +751,7 @@ function renderResult() {
 
   // 你要的醒目标题：固定“夜行观察员”
   document.getElementById("result-title").textContent = "夜行观察员";
+  renderIdentityPanel(report);
   document.getElementById("result-verdict").textContent = report.verdict;
   renderRadarChart(scores);
   document.getElementById("result-recap").textContent = report.recap;
