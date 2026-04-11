@@ -749,8 +749,7 @@ function renderResult() {
 
   setAvatarImage(document.getElementById("raccoon-avatar"), report.title);
 
-  // 你要的醒目标题：固定“夜行观察员”
-  document.getElementById("result-title").textContent = "夜行观察员";
+  document.getElementById("result-title").textContent = report.title;
   renderIdentityPanel(report);
   document.getElementById("result-verdict").textContent = report.verdict;
   renderRadarChart(scores);
@@ -784,9 +783,10 @@ function renderResult() {
   renderCuratedAiReport(getCuratedAiReport(scores));
 
   qs.copyBtn.onclick = async () => {
+    const resultTitle = document.getElementById("result-title").textContent;
     const text = [
       `【浣熊今天怎么活】`,
-      `夜行观察员`,
+      resultTitle,
       document.getElementById("result-verdict").textContent,
       `- 剧情回放：${document.getElementById("result-recap").textContent}`,
       `- 今晚任务：${document.getElementById("result-quest").textContent}`
