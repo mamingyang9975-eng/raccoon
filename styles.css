@@ -122,18 +122,6 @@ input {
   margin-top: 16px;
 }
 
-.result-block {
-  border-top: 1px dashed var(--line);
-  margin-top: 12px;
-  padding-top: 12px;
-}
-.ai-box {
-  margin: 10px 0 8px;
-  padding: 12px;
-  border: 1px dashed var(--line);
-  border-radius: 12px;
-  background: #f3f8f4;
-}
 .ai-row {
   display: flex;
   gap: 8px;
@@ -143,12 +131,6 @@ input {
   color: var(--muted);
   font-size: 13px;
   margin: 4px 0 10px;
-}
-.verdict {
-  background: #edf5ef;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 12px;
 }
 .result-actions {
   display: flex;
@@ -198,118 +180,102 @@ input {
 #result-screen.card {
   position: relative;
   background:
-    radial-gradient(circle at top center, rgba(255, 216, 77, 0.08), transparent 18%),
-    linear-gradient(180deg, rgba(255,255,255,.93), rgba(246,252,247,.90));
-  border: 1px solid rgba(182, 226, 194, 0.72);
+    radial-gradient(circle at top center, rgba(255, 216, 77, 0.05), transparent 20%),
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(247,251,248,.94));
+  border: 1px solid rgba(182, 226, 194, 0.55);
   box-shadow:
-    0 24px 60px rgba(24, 64, 48, 0.08),
+    0 24px 60px rgba(24, 64, 48, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(8px);
 }
 
-/* ===== 头部冲击感 ===== */
+/* ===== 结果页：更克制的编辑感层级 ===== */
 .result-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin: 4px 0 14px;
+  gap: 12px;
+  margin: 8px 0 24px;
 }
 
 .raccoon-sticker {
-  width: 132px;
-  height: 132px;
+  width: 124px;
+  height: 124px;
   object-fit: contain;
-  border-radius: 28px;
-  border: 1px solid rgba(255, 216, 77, 0.9);
-  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,252,248,.9));
+  border-radius: 30px;
+  border: 1px solid rgba(255, 216, 77, 0.65);
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(249,252,249,.92));
   box-shadow:
-    0 14px 34px rgba(13, 77, 58, 0.12),
-    0 0 0 10px rgba(255, 216, 77, 0.12);
+    0 16px 36px rgba(13, 77, 58, 0.08),
+    0 0 0 8px rgba(255, 216, 77, 0.08);
 }
 
-/* 夜行观察员 */
 #result-title,
 .result-title {
   font-family: "Noto Serif SC", Georgia, serif;
-  font-size: 64px;
-  line-height: 0.98;
+  font-size: 60px;
+  line-height: 1.02;
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   margin: 0;
   color: var(--anime-green-900);
   text-shadow:
     0 1px 0 rgba(255,255,255,.95),
-    0 4px 14px rgba(31, 122, 91, 0.12);
+    0 8px 22px rgba(31, 122, 91, 0.08);
+  text-align: center;
+  text-wrap: balance;
 }
 
 .identity-panel {
   position: relative;
-  margin: 18px 0 22px;
-  padding: 22px 24px 18px;
-  border-radius: 30px;
+  margin: 0 0 34px;
+  padding: 0 0 24px;
+  border-radius: 0;
   background:
-    linear-gradient(180deg, rgba(255,255,255,.96), rgba(243,250,245,.92));
-  border: 1px solid rgba(182, 226, 194, 0.78);
-  box-shadow:
-    0 18px 40px rgba(20, 72, 53, 0.06),
-    inset 0 1px 0 rgba(255,255,255,.8);
+    linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0));
+  border: none;
+  box-shadow: none;
+  text-align: center;
 }
 
 .identity-panel::before {
   content: "";
   position: absolute;
-  inset: 0;
-  border-radius: 28px;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(255,216,77,.7), rgba(47,160,111,.35), rgba(255,255,255,0));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+  left: 50%;
+  bottom: 0;
+  width: min(180px, 38%);
+  height: 1px;
+  background: linear-gradient(90deg, rgba(182,226,194,0), rgba(182,226,194,.92), rgba(182,226,194,0));
+  transform: translateX(-50%);
 }
 
 .identity-kicker {
-  margin: 0 0 10px;
-  font-size: 12px;
-  letter-spacing: 0.18em;
+  margin: 0 0 12px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(63, 102, 90, 0.58);
-}
-
-.result-archetype {
-  margin: 0;
-  font-family: "Noto Serif SC", Georgia, serif;
-  font-size: 60px;
-  line-height: 1.04;
-  font-weight: 900;
-  letter-spacing: 1px;
-  color: #103f32;
-  text-wrap: balance;
+  color: rgba(63, 102, 90, 0.52);
 }
 
 .result-subtitles {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 14px 0 16px;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 16px;
 }
 
 .identity-chip {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-  padding: 7px 12px;
+  min-height: 32px;
+  padding: 6px 12px;
   border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(255, 250, 227, 0.85), rgba(255, 245, 212, 0.72));
-  border: 1px solid rgba(245, 196, 0, 0.24);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.7),
-    0 4px 10px rgba(245, 196, 0, 0.08);
-  font-size: 16px;
-  font-weight: 800;
-  color: #816100;
+  background: rgba(255, 248, 224, 0.7);
+  border: 1px solid rgba(245, 196, 0, 0.22);
+  font-size: 14px;
+  font-weight: 700;
+  color: #7a6204;
   letter-spacing: 0.03em;
 }
 
@@ -320,60 +286,103 @@ input {
   background: transparent;
   border: none;
   border-radius: 0;
-  font-size: 20px;
-  line-height: 1.78;
+  font-size: 19px;
+  line-height: 1.75;
   font-weight: 500;
   color: #44685e;
-  max-width: 30em;
+  max-width: 34em;
+  margin-inline: auto;
 }
 
-/* ===== 下方内容：标题与正文分色 ===== */
-.result-block {
-  background: linear-gradient(180deg, rgba(255,255,255,.84), rgba(248,252,249,.80));
-  border: 1px solid rgba(182, 226, 194, 0.62);
-  border-radius: 22px;
-  padding: 18px 20px;
-  margin: 14px 0;
-  box-shadow:
-    0 12px 24px rgba(20, 72, 53, 0.045),
-    inset 0 1px 0 rgba(255,255,255,.85);
+.result-section {
+  margin-top: 34px;
 }
 
-.result-block h3 {
+.section-intro {
+  margin-bottom: 18px;
+}
+
+.section-kicker,
+.surface-kicker {
+  margin: 0 0 8px;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(63, 102, 90, 0.5);
+}
+
+.section-intro h3 {
+  margin: 0;
   font-family: "Noto Serif SC", Georgia, serif;
-  font-size: 28px;
-  font-weight: 900;
-  color: var(--anime-green-700); /* 标题绿 */
-  margin-bottom: 12px;
-  letter-spacing: 0.04em;
-  position: relative;
-  padding-left: 14px;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: var(--anime-green-900);
 }
 
-.result-block h3::before {
-  content: "✦";
-  position: absolute;
-  left: 0;
-  color: var(--anime-yellow-600); /* 点缀黄 */
+.insight-grid,
+.story-grid,
+.notes-grid {
+  display: grid;
+  gap: 16px;
 }
 
-.radar-block {
-  overflow: hidden;
+.insight-grid {
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  align-items: start;
+}
+
+.story-grid {
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+}
+
+.notes-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.surface-card {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(182, 226, 194, 0.5);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow:
+    0 10px 24px rgba(20, 72, 53, 0.035),
+    inset 0 1px 0 rgba(255,255,255,.88);
+}
+
+.surface-head {
+  margin-bottom: 14px;
+}
+
+.surface-head h4 {
+  margin: 0;
+  font-family: "Noto Serif SC", Georgia, serif;
+  font-size: 24px;
+  line-height: 1.15;
+  font-weight: 800;
+  color: var(--anime-green-900);
+}
+
+.task-card {
+  background: linear-gradient(180deg, rgba(255, 249, 235, 0.92), rgba(255, 255, 255, 0.78));
+  border-color: rgba(245, 196, 0, 0.26);
 }
 
 .radar-chart {
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .radar-shell {
   display: grid;
-  gap: 20px;
+  gap: 18px;
   align-items: center;
 }
 
 .radar-svg {
   width: 100%;
-  max-width: 430px;
+  max-width: 400px;
   margin: 0 auto;
   display: block;
   overflow: visible;
@@ -423,87 +432,100 @@ input {
 .radar-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .radar-stat {
-  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(239,252,240,.96));
-  border: 1px solid rgba(182, 226, 194, 0.66);
-  border-radius: 18px;
-  padding: 12px 12px;
+  background: rgba(247, 251, 248, 0.96);
+  border: 1px solid rgba(182, 226, 194, 0.5);
+  border-radius: 16px;
+  padding: 12px 10px;
   text-align: center;
-  box-shadow: 0 6px 16px rgba(31, 122, 91, 0.08);
+  box-shadow: none;
 }
 
 .radar-stat-label {
   display: block;
-  font-size: 14px;
-  color: rgba(63, 102, 90, 0.82);
+  font-size: 13px;
+  color: rgba(63, 102, 90, 0.78);
   margin-bottom: 4px;
 }
 
 .radar-stat strong {
-  font-size: 22px;
+  font-size: 20px;
   color: var(--anime-green-900);
 }
 
-.result-block p,
-.result-block li {
-  font-size: 22px;
-  line-height: 1.82;
-  color: var(--anime-ink); /* 正文深墨绿 */
-}
-
-.result-block li::marker {
-  color: var(--anime-yellow-600);
-}
-
-/* AI状态 */
 #ai-status {
-  font-size: 14px;
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(63, 102, 90, 0.72);
-  margin-bottom: 12px;
+  color: rgba(63, 102, 90, 0.64);
+  margin: 0 0 10px;
 }
 
 .ai-report {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .ai-report p {
   margin: 0;
-  font-size: 22px;
-  line-height: 1.92;
+  font-size: 18px;
+  line-height: 1.9;
   color: var(--anime-ink);
 }
 
-.ai-box {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.84), rgba(247,252,248,.80));
-  border: 1px solid rgba(182, 226, 194, 0.62);
-  border-radius: 22px;
-  box-shadow:
-    0 12px 24px rgba(20, 72, 53, 0.045),
-    inset 0 1px 0 rgba(255,255,255,.85);
+.story-card p,
+.task-card p,
+.note-card li {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.82;
+  color: var(--anime-ink);
 }
 
-.ai-box h3 {
-  font-family: "Noto Serif SC", Georgia, serif;
-  font-size: 28px;
-  letter-spacing: 0.04em;
+.note-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.note-card li + li {
+  margin-top: 10px;
+}
+
+.note-card li::marker {
+  color: rgba(245, 196, 0, 0.9);
+}
+
+.result-actions {
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.disclaimer {
+  margin-top: 14px;
+  text-align: center;
+  color: rgba(107, 127, 113, 0.82);
+  font-size: 12px;
 }
 
 @media (max-width: 600px) {
-  #result-title, .result-title { font-size: 52px; }
-  .identity-panel { padding: 18px 18px 16px; }
-  .result-archetype { font-size: 38px; }
-  .identity-chip { font-size: 14px; padding: 6px 10px; }
-  #result-verdict, .verdict { font-size: 18px; line-height: 1.75; }
-  .result-block h3, .ai-box h3 { font-size: 24px; }
-  .result-block p, .result-block li, .ai-report p { font-size: 19px; }
+  #result-title, .result-title { font-size: 44px; }
+  .result-hero { margin-bottom: 20px; }
+  .raccoon-sticker { width: 108px; height: 108px; }
+  .identity-panel { margin-bottom: 28px; padding-bottom: 22px; }
+  .identity-chip { font-size: 13px; padding: 6px 10px; }
+  #result-verdict, .verdict { font-size: 17px; line-height: 1.72; }
+  .result-section { margin-top: 28px; }
+  .section-intro h3 { font-size: 26px; }
+  .insight-grid,
+  .story-grid,
+  .notes-grid { grid-template-columns: 1fr; }
+  .surface-card { padding: 18px; border-radius: 18px; }
+  .surface-head h4 { font-size: 22px; }
+  .story-card p, .task-card p, .note-card li, .ai-report p { font-size: 16px; }
   .radar-label { font-size: 15px; }
   .radar-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .radar-stat strong { font-size: 20px; }
+  .radar-stat strong { font-size: 18px; }
 }

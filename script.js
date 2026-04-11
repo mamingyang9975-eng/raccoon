@@ -332,7 +332,6 @@ const qs = {
   aiStatus: document.getElementById("ai-status") || null,
   aiReport: document.getElementById("ai-report") || null,
   radarChart: document.getElementById("radar-chart") || null,
-  resultArchetype: document.getElementById("result-archetype") || null,
   resultSubtitles: document.getElementById("result-subtitles") || null
 };
 
@@ -544,8 +543,6 @@ function renderCuratedAiReport(entry) {
 }
 
 function renderIdentityPanel(report) {
-  if (qs.resultArchetype) qs.resultArchetype.textContent = report.title;
-
   if (qs.resultSubtitles) {
     qs.resultSubtitles.innerHTML = "";
     report.subtitles.forEach((subtitle) => {

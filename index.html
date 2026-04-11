@@ -55,46 +55,93 @@
 
         <section class="identity-panel">
           <p class="identity-kicker">今晚挂牌身份</p>
-          <h3 id="result-archetype" class="result-archetype"></h3>
           <div id="result-subtitles" class="result-subtitles"></div>
           <p id="result-verdict" class="verdict"></p>
         </section>
 
-        <div class="result-block radar-block">
-          <h3>浣熊六维图谱</h3>
-          <div id="radar-chart" class="radar-chart"></div>
-        </div>
+        <section class="result-section">
+          <div class="section-intro">
+            <p class="section-kicker">Profile</p>
+            <h3>图谱与解读</h3>
+          </div>
 
-        <div class="ai-box ai-output-only">
-          <h3>深度解读</h3>
-          <p id="ai-status" class="ai-tip">浣熊夜谈整理中</p>
-          <div id="ai-report" class="ai-report"></div>
-        </div>
+          <div class="insight-grid">
+            <article class="surface-card radar-panel">
+              <div class="surface-head">
+                <p class="surface-kicker">Score Map</p>
+                <h4>浣熊六维图谱</h4>
+              </div>
+              <div id="radar-chart" class="radar-chart"></div>
+            </article>
 
-        <div class="result-block">
-          <h3>今日剧情回放</h3>
-          <p id="result-recap"></p>
-        </div>
+            <article class="surface-card ai-panel ai-output-only">
+              <div class="surface-head">
+                <p class="surface-kicker">Deep Dive</p>
+                <h4>浣熊夜谈</h4>
+              </div>
+              <p id="ai-status" class="ai-tip">浣熊夜谈整理中</p>
+              <div id="ai-report" class="ai-report"></div>
+            </article>
+          </div>
+        </section>
 
-        <div class="result-block">
-          <h3>你的生存天赋</h3>
-          <ul id="result-talents"></ul>
-        </div>
+        <section class="result-section">
+          <div class="section-intro">
+            <p class="section-kicker">Storyline</p>
+            <h3>今晚记录</h3>
+          </div>
 
-        <div class="result-block">
-          <h3>你的惯性陷阱</h3>
-          <ul id="result-traps"></ul>
-        </div>
+          <div class="story-grid">
+            <article class="surface-card story-card">
+              <div class="surface-head">
+                <p class="surface-kicker">Recap</p>
+                <h4>剧情回放</h4>
+              </div>
+              <p id="result-recap"></p>
+            </article>
 
-        <div class="result-block">
-          <h3>关系说明书</h3>
-          <ul id="result-manual"></ul>
-        </div>
+            <article class="surface-card task-card">
+              <div class="surface-head">
+                <p class="surface-kicker">Tonight</p>
+                <h4>今晚任务</h4>
+              </div>
+              <p id="result-quest"></p>
+            </article>
+          </div>
+        </section>
 
-        <div class="result-block">
-          <h3>今晚任务</h3>
-          <p id="result-quest"></p>
-        </div>
+        <section class="result-section">
+          <div class="section-intro">
+            <p class="section-kicker">Field Notes</p>
+            <h3>生存说明</h3>
+          </div>
+
+          <div class="notes-grid">
+            <article class="surface-card note-card">
+              <div class="surface-head">
+                <p class="surface-kicker">Strengths</p>
+                <h4>你的生存天赋</h4>
+              </div>
+              <ul id="result-talents"></ul>
+            </article>
+
+            <article class="surface-card note-card">
+              <div class="surface-head">
+                <p class="surface-kicker">Patterns</p>
+                <h4>你的惯性陷阱</h4>
+              </div>
+              <ul id="result-traps"></ul>
+            </article>
+
+            <article class="surface-card note-card">
+              <div class="surface-head">
+                <p class="surface-kicker">Relations</p>
+                <h4>关系说明书</h4>
+              </div>
+              <ul id="result-manual"></ul>
+            </article>
+          </div>
+        </section>
 
         <div class="result-actions">
           <button id="copy-btn" class="ghost">复制结果文案</button>
