@@ -333,12 +333,13 @@ input {
 }
 
 .insight-grid {
-  grid-template-columns: minmax(0, 1.12fr) minmax(280px, 0.88fr);
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
 }
 
 .profile-stack {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -400,18 +401,22 @@ input {
 }
 
 .radar-chart {
-  margin-top: 4px;
+  margin-top: 8px;
+}
+
+.radar-panel {
+  padding: 22px 24px 24px;
 }
 
 .radar-shell {
   display: grid;
-  gap: 18px;
+  gap: 22px;
   align-items: center;
 }
 
 .radar-svg {
   width: 100%;
-  max-width: 450px;
+  max-width: 620px;
   margin: 0 auto;
   display: block;
   overflow: visible;
@@ -490,6 +495,10 @@ input {
 .dimension-bars {
   display: grid;
   gap: 12px;
+}
+
+.standout-panel {
+  grid-column: 1 / -1;
 }
 
 .spotlight-grid {
@@ -734,6 +743,7 @@ input {
   .insight-grid,
   .story-grid,
   .notes-grid { grid-template-columns: 1fr; }
+  .profile-stack { grid-template-columns: 1fr; }
   .spotlight-grid { grid-template-columns: 1fr; }
   .surface-card { padding: 18px; border-radius: 18px; }
   .surface-head h4 { font-size: 22px; }

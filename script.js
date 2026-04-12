@@ -879,9 +879,9 @@ function calculateChartMaxScores() {
 function renderRadarChart(scores) {
   if (!qs.radarChart) return;
 
-  const size = 420;
+  const size = 520;
   const center = size / 2;
-  const radius = 120;
+  const radius = 160;
   const levels = 5;
   const startAngle = -Math.PI / 2;
   const minDisplayScale = 0.18;
