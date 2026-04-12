@@ -107,7 +107,7 @@ const QUESTIONS = [
   ["天亮前总结", "凌晨四点，你准备写‘今日总结’。你会：", [
     ["写三条做得好的、两条要改的", { DO: 2, SAFE: 1 }],
     ["写下对这一天的感受", { MASK: 1, DRAMA: 2 }],
-    ["想了很久，不知道写什么，最后只写了个句号", { OID: 2, DRAMA: 1 }]
+    ["想了很久，不知道写什么，最后只写了个句号", { AVOID: 2, DRAMA: 1 }]
   ]],
   ["天亮前总结", "明天最想改变的一件事是：", [
     ["少想一点，先做一点", { DO: 2, AVOID: -1 }],
@@ -159,10 +159,13 @@ const DIM_RECAP_CANDIDATES = {
 
 const TITLE_MAP = {
   "MASK+SAFE": "体面生存架构师",
+  "MASK+SOCIAL": "体面关系制片人",
   "MASK+AVOID": "战术性失踪总监",
   "MASK+DRAMA": "精致崩溃艺术家",
+  "MASK+DO": "体面控场执行者",
   "SAFE+DO": "稳健推进工程师",
   "SAFE+AVOID": "风险规避型观察员",
+  "SAFE+DRAMA": "清醒浪漫守夜人",
   "SAFE+SOCIAL": "礼貌联盟协调员",
   "SOCIAL+DRAMA": "夜间气氛组组长",
   "SOCIAL+DO": "行动派社交发动机",
@@ -496,10 +499,13 @@ function describePair(scores) {
   const pair = pairKeyFromScores(scores);
   const summaries = {
     "MASK+SAFE": "你先在心里把风险和体面都摆平，才肯把自己真正放进剧情里。",
+    "MASK+SOCIAL": "你一边维护分寸和体面，一边也很会让关系场保持顺滑运转。",
     "MASK+AVOID": "你很少正面失控，更擅长把情绪折叠好，再找一个体面的出口。",
     "MASK+DRAMA": "你一边在意外界怎么看，一边又很难放弃内心那套戏剧化感受系统。",
+    "MASK+DO": "你不只在意场面好不好看，也会亲自下场把局面收拾到位。",
     "SAFE+DO": "你不是靠嘴硬活着的，你更习惯先判断，再把事情一点点推成。",
     "SAFE+AVOID": "你最大的本能不是冲，而是先看清楚这件事值不值得自己下场。",
+    "SAFE+DRAMA": "你既想守住安全边界，也保留着对情绪和浪漫的敏锐感受力。",
     "SAFE+SOCIAL": "你会照顾场面，也会照顾秩序，天生带一点温和控场感。",
     "SOCIAL+DRAMA": "你对气氛和情绪都很敏锐，很容易把普通一晚过出群像戏。",
     "SOCIAL+DO": "你不是单纯会来事，你是真的能把关系和行动一起带起来。",

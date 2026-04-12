@@ -35,6 +35,90 @@ class Element {
   }
 }
 
+const DOM_IDS = [
+  "start-screen",
+  "quiz-screen",
+  "result-screen",
+  "start-btn",
+  "prev-btn",
+  "next-btn",
+  "copy-btn",
+  "restart-btn",
+  "progress-current",
+  "progress-total",
+  "progress-fill",
+  "scene-pill",
+  "question-title",
+  "question-text",
+  "options",
+  "ai-status",
+  "ai-report",
+  "radar-chart",
+  "result-spotlight",
+  "result-contrast",
+  "result-dimension-bars",
+  "result-subtitles",
+  "result-title",
+  "result-verdict",
+  "result-recap",
+  "result-talents",
+  "result-traps",
+  "result-manual",
+  "result-quest",
+  "raccoon-avatar",
+];
+
+function loadScriptContext() {
+  const elements = Object.fromEntries(DOM_IDS.map((id) => [id, new Element(id)]));
+  const context = {
+    console,
+    localStorage: {
+      getItem() {
+        return null;
+      },
+      setItem() {},
+    },
+    navigator: {
+      clipboard: {
+        writeText: async () => {},
+      },
+    },
+    setTimeout,
+    clearTimeout,
+    fetch: async () =>
+      new Response(
+        JSON.stringify({
+          model: "test/free",
+          content: JSON.stringify({
+            verdict: "AI verdict",
+            story_recap: "AI story",
+            talents: ["a", "b"],
+            traps: ["c", "d"],
+            relationship_manual: ["e", "f"],
+            tonight_quest: "g",
+          }),
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      ),
+    document: {
+      getElementById(id) {
+        return elements[id] || null;
+      },
+      createElement(tag) {
+        return new Element(tag);
+      },
+    },
+  };
+
+  context.window = context;
+  vm.createContext(context);
+  vm.runInContext(readFileSync(new URL("../script.js", import.meta.url), "utf8"), context);
+  return { context, elements };
+}
+
 test("script.js can render the result screen in a minimal DOM", async () => {
   const ids = [
     "start-screen",
@@ -332,4 +416,36 @@ test("script.js can render a local deep report for a third answer pattern", asyn
   assert.ok(elements["result-talents"].children.length >= 2);
   assert.ok(elements["result-traps"].children.length >= 2);
   assert.ok(elements["result-manual"].children.length >= 2);
+});
+
+test("script.js does not fall back to the default title for any top-dimension pair", () => {
+  const { context } = loadScriptContext();
+  const missingPairs = vm.runInContext(
+    `(() => {
+      const missing = [];
+      for (let i = 0; i < DIMS.length; i += 1) {
+        for (let j = i + 1; j < DIMS.length; j += 1) {
+          const scores = Object.fromEntries(DIMS.map((dim) => [dim, 0]));
+          scores[DIMS[i]] = 10;
+          scores[DIMS[j]] = 9;
+          if (titleFromScores(scores) === "城市夜行观察员") {
+            missing.push(canonicalPairKey(DIMS[i], DIMS[j]));
+          }
+        }
+      }
+      return JSON.stringify(missing);
+    })()`,
+    context
+  );
+
+  assert.equal(missingPairs, "[]");
+});
+
+test("script.js keeps the recap question mapped to AVOID instead of an unknown dimension", () => {
+  const { context } = loadScriptContext();
+  const effect = vm.runInContext("QUESTIONS[21][2][2][1]", context);
+
+  assert.equal(effect.AVOID, 2);
+  assert.equal(effect.DRAMA, 1);
+  assert.equal("OID" in effect, false);
 });

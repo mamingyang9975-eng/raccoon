@@ -2,10 +2,13 @@
 
 const TITLE_TO_SKIN = {
   "体面生存架构师": "mask_safe",
+  "体面关系制片人": "mask_social",
   "战术性失踪总监": "mask_avoid",
   "精致崩溃艺术家": "mask_drama",
+  "体面控场执行者": "mask_do",
   "稳健推进工程师": "safe_do",
   "风险规避型观察员": "safe_avoid",
+  "清醒浪漫守夜人": "safe_drama",
   "礼貌联盟协调员": "safe_social",
   "夜间气氛组组长": "social_drama",
   "行动派社交发动机": "social_do",
@@ -17,10 +20,13 @@ const TITLE_TO_SKIN = {
 
 const SKINS = {
   mask_safe:   { body:"#98A7AA", cloth:"#2F6F5D", accent:"#F4C542", eye:"calm",  mouth:"flat",  item:"glasses" },
+  mask_social: { body:"#9DB0A6", cloth:"#3B7B68", accent:"#F3D36A", eye:"warm",  mouth:"smile", item:"badge" },
   mask_avoid:  { body:"#A7ACA2", cloth:"#4C6256", accent:"#C9D99E", eye:"down",  mouth:"flat",  item:"cap" },
   mask_drama:  { body:"#9DA0B0", cloth:"#5F6FA3", accent:"#FFD84D", eye:"spark", mouth:"smile", item:"star" },
+  mask_do:     { body:"#98A89F", cloth:"#2E8563", accent:"#F0CB55", eye:"focus", mouth:"smile", item:"headband" },
   safe_do:     { body:"#8FA8A3", cloth:"#2D8A63", accent:"#FFD84D", eye:"focus", mouth:"smile", item:"compass" },
   safe_avoid:  { body:"#9EAD9A", cloth:"#5A7456", accent:"#D9E87C", eye:"down",  mouth:"flat",  item:"scarf" },
+  safe_drama:  { body:"#A6A596", cloth:"#6B6F48", accent:"#F6D36B", eye:"spark", mouth:"curve", item:"moon" },
   safe_social: { body:"#95B0A1", cloth:"#2E7D5D", accent:"#F7D34B", eye:"warm",  mouth:"smile", item:"badge" },
   social_drama:{ body:"#A89C8B", cloth:"#7B6A43", accent:"#FFD84D", eye:"spark", mouth:"laugh", item:"earring" },
   social_do:   { body:"#8DB19C", cloth:"#2FA06F", accent:"#F3C943", eye:"focus", mouth:"smile", item:"headband" },
