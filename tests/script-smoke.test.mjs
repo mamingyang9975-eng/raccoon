@@ -55,6 +55,9 @@ test("script.js can render the result screen in a minimal DOM", async () => {
     "ai-status",
     "ai-report",
     "radar-chart",
+    "result-spotlight",
+    "result-contrast",
+    "result-dimension-bars",
     "result-subtitles",
     "result-title",
     "result-verdict",
@@ -116,12 +119,16 @@ test("script.js can render the result screen in a minimal DOM", async () => {
   vm.runInContext("state.answers = new Array(QUESTIONS.length).fill(0); renderResult();", context);
   await new Promise((resolve) => setTimeout(resolve, 0));
 
-  assert.equal(elements["result-title"].textContent, "城市夜行观察员");
+  assert.equal(elements["result-title"].textContent, "行动派社交发动机");
   assert.match(elements["raccoon-avatar"].src, /\/api\/avatar\?title=/);
-  assert.ok(elements["result-subtitles"].children.length >= 1);
-  assert.match(elements["result-verdict"].textContent, /想法/);
+  assert.ok(elements["result-subtitles"].children.length >= 2);
+  assert.match(elements["result-verdict"].textContent, /不太一样/);
+  assert.match(elements["result-recap"].textContent, /先判断哪条路线最安全/);
   assert.match(elements["radar-chart"].innerHTML, /<svg/);
   assert.match(elements["radar-chart"].innerHTML, /体面/);
+  assert.equal(elements["result-spotlight"].children.length, 3);
+  assert.equal(elements["result-contrast"].children.length, 3);
+  assert.equal(elements["result-dimension-bars"].children.length, 6);
   assert.ok(elements["ai-status"].textContent.length > 0);
   assert.equal(elements["ai-report"].children.length, 1);
   assert.match(elements["ai-report"].children[0].textContent, /浣熊/);
@@ -147,6 +154,9 @@ test("script.js can render a different local deep report for another answer patt
     "ai-status",
     "ai-report",
     "radar-chart",
+    "result-spotlight",
+    "result-contrast",
+    "result-dimension-bars",
     "result-subtitles",
     "result-title",
     "result-verdict",
@@ -215,8 +225,10 @@ test("script.js can render a different local deep report for another answer patt
   await new Promise((resolve) => setTimeout(resolve, 0));
 
   assert.equal(elements["result-title"].textContent, "精致崩溃艺术家");
-  assert.ok(elements["result-subtitles"].children.length >= 1);
+  assert.ok(elements["result-subtitles"].children.length >= 2);
+  assert.match(elements["result-recap"].textContent, /回个玩笑，轻轻带过/);
   assert.match(elements["radar-chart"].innerHTML, /<svg/);
+  assert.equal(elements["result-dimension-bars"].children.length, 6);
   assert.ok(elements["ai-status"].textContent.length > 0);
   assert.equal(elements["ai-report"].children.length, 1);
   assert.match(elements["ai-report"].children[0].textContent, /浣熊/);
@@ -243,6 +255,9 @@ test("script.js can render a local deep report for a third answer pattern", asyn
     "ai-status",
     "ai-report",
     "radar-chart",
+    "result-spotlight",
+    "result-contrast",
+    "result-dimension-bars",
     "result-subtitles",
     "result-title",
     "result-verdict",
@@ -306,9 +321,11 @@ test("script.js can render a local deep report for a third answer pattern", asyn
   vm.runInContext("state.answers = new Array(QUESTIONS.length).fill(2); renderResult();", context);
   await new Promise((resolve) => setTimeout(resolve, 0));
 
-  assert.equal(elements["result-title"].textContent, "城市夜行观察员");
-  assert.ok(elements["result-subtitles"].children.length >= 1);
+  assert.equal(elements["result-title"].textContent, "浪漫废墟建筑师");
+  assert.ok(elements["result-subtitles"].children.length >= 2);
+  assert.match(elements["result-recap"].textContent, /先躲进灌木，等等再说/);
   assert.match(elements["radar-chart"].innerHTML, /<svg/);
+  assert.equal(elements["result-contrast"].children.length, 3);
   assert.ok(elements["ai-status"].textContent.length > 0);
   assert.equal(elements["ai-report"].children.length, 1);
   assert.match(elements["ai-report"].children[0].textContent, /浣熊/);

@@ -130,6 +130,33 @@ const DIM_META = [
   { key: "DO", label: "执行力" },
 ];
 
+const DIM_TONE = {
+  MASK: "体面感",
+  SAFE: "安全感",
+  SOCIAL: "关系温度",
+  AVOID: "退路",
+  DRAMA: "戏剧感",
+  DO: "推进力",
+};
+
+const DIM_BEHAVIOR = {
+  MASK: "把场面维持得体",
+  SAFE: "先确认局面稳不稳",
+  SOCIAL: "把关系气氛也算进决定里",
+  AVOID: "先给自己留一条退路",
+  DRAMA: "让情绪和氛围也参与投票",
+  DO: "先把事情推起来再说",
+};
+
+const DIM_RECAP_CANDIDATES = {
+  MASK: [2, 10, 13, 22],
+  SAFE: [1, 3, 18, 19],
+  SOCIAL: [5, 6, 12, 16],
+  AVOID: [7, 14, 17, 23],
+  DRAMA: [8, 11, 15, 21],
+  DO: [4, 9, 20, 22],
+};
+
 const TITLE_MAP = {
   "MASK+SAFE": "体面生存架构师",
   "MASK+AVOID": "战术性失踪总监",
@@ -332,7 +359,10 @@ const qs = {
   aiStatus: document.getElementById("ai-status") || null,
   aiReport: document.getElementById("ai-report") || null,
   radarChart: document.getElementById("radar-chart") || null,
-  resultSubtitles: document.getElementById("result-subtitles") || null
+  resultSubtitles: document.getElementById("result-subtitles") || null,
+  resultSpotlight: document.getElementById("result-spotlight") || null,
+  resultContrast: document.getElementById("result-contrast") || null,
+  resultDimensionBars: document.getElementById("result-dimension-bars") || null,
 };
 
 function getSavedEndpoint() {
@@ -416,7 +446,15 @@ function sortedDimsFromScores(scores) {
 
 function pairKeyFromScores(scores) {
   const sorted = sortedDimsFromScores(scores);
-  return `${sorted[0]}+${sorted[1]}`;
+  return canonicalPairKey(sorted[0], sorted[1]);
+}
+
+function canonicalPairKey(left, right) {
+  const direct = `${left}+${right}`;
+  const reversed = `${right}+${left}`;
+  if (TITLE_MAP[direct] || CURATED_AI_REPORTS[`${direct}:spiky`] || CURATED_AI_REPORTS[`${direct}:steady`]) return direct;
+  if (TITLE_MAP[reversed] || CURATED_AI_REPORTS[`${reversed}:spiky`] || CURATED_AI_REPORTS[`${reversed}:steady`]) return reversed;
+  return direct;
 }
 
 function curatedVariantFromScores(scores) {
@@ -427,10 +465,10 @@ function curatedVariantFromScores(scores) {
 function curatedPairFromScores(scores) {
   const sorted = sortedDimsFromScores(scores);
   const candidates = [
-    `${sorted[0]}+${sorted[1]}`,
-    `${sorted[0]}+${sorted[2]}`,
-    `${sorted[1]}+${sorted[2]}`,
-    `${sorted[0]}+${sorted[3]}`,
+    canonicalPairKey(sorted[0], sorted[1]),
+    canonicalPairKey(sorted[0], sorted[2]),
+    canonicalPairKey(sorted[1], sorted[2]),
+    canonicalPairKey(sorted[0], sorted[3]),
   ];
 
   for (const candidate of candidates) {
@@ -448,13 +486,127 @@ function titleFromScores(scores) {
 }
 
 function subtitlesFromScores(scores) {
-  return SUB_TITLES.filter(r => r.when(scores)).map(r => r.text).slice(0, 2);
+  const sorted = sortedDimsFromScores(scores);
+  const labels = SUB_TITLES.filter(r => r.when(scores)).map(r => r.text);
+  labels.push(`暗线属性：${DIM_META.find((meta) => meta.key === sorted[2])?.label || "夜行直觉"}`);
+  return [...new Set(labels)].slice(0, 3);
+}
+
+function describePair(scores) {
+  const pair = pairKeyFromScores(scores);
+  const summaries = {
+    "MASK+SAFE": "你先在心里把风险和体面都摆平，才肯把自己真正放进剧情里。",
+    "MASK+AVOID": "你很少正面失控，更擅长把情绪折叠好，再找一个体面的出口。",
+    "MASK+DRAMA": "你一边在意外界怎么看，一边又很难放弃内心那套戏剧化感受系统。",
+    "SAFE+DO": "你不是靠嘴硬活着的，你更习惯先判断，再把事情一点点推成。",
+    "SAFE+AVOID": "你最大的本能不是冲，而是先看清楚这件事值不值得自己下场。",
+    "SAFE+SOCIAL": "你会照顾场面，也会照顾秩序，天生带一点温和控场感。",
+    "SOCIAL+DRAMA": "你对气氛和情绪都很敏锐，很容易把普通一晚过出群像戏。",
+    "SOCIAL+DO": "你不是单纯会来事，你是真的能把关系和行动一起带起来。",
+    "SOCIAL+AVOID": "你想靠近别人，但也很在意自己能不能随时优雅撤退。",
+    "DRAMA+AVOID": "你感受很多、脑内很多，但真正迈出去之前总要先在心里过很多遍。",
+    "DRAMA+DO": "你少有的地方在于，不只是会感受，还真愿意把感觉变成行动。",
+    "AVOID+DO": "你平时看着像没上线，关键时刻却总能被压力瞬间点亮。 ",
+  };
+  return summaries[pair] || "你总在自己的节奏里权衡该冲、该稳，还是该先撤一步。";
+}
+
+function uniqueSignatureFromScores(scores) {
+  const sorted = sortedDimsFromScores(scores);
+  const thirdLabel = DIM_TONE[sorted[2]];
+  const variantText = curatedVariantFromScores(scores) === "spiky"
+    ? "而且这股暗线不是温吞存在，它会在关键节点突然跳出来，改写你的选择。"
+    : "而且这股暗线不是点缀，它会慢慢渗进你几乎每一个决定里。";
+  return `你和同类结果里其他人不太一样的地方，是身上还混着明显的${thirdLabel}底色，${variantText}`;
+}
+
+function buildVerdict(scores) {
+  return `${describePair(scores)} ${uniqueSignatureFromScores(scores)}`;
+}
+
+function strongestPositiveDims(effect) {
+  return Object.entries(effect)
+    .filter(([, value]) => Number(value) > 0)
+    .sort((a, b) => Number(b[1]) - Number(a[1]))
+    .map(([key]) => key);
+}
+
+function behaviorFromEffect(effect) {
+  const positives = strongestPositiveDims(effect);
+  if (!positives.length) return "按自己的直觉做决定";
+  if (positives.length === 1) return DIM_BEHAVIOR[positives[0]];
+  return `${DIM_BEHAVIOR[positives[0]]}，也会${DIM_BEHAVIOR[positives[1]]}`;
+}
+
+function recapSentenceForQuestion(index, offset = 0) {
+  const answerIndex = state.answers[index];
+  const [scene, , options] = QUESTIONS[index];
+  const [answerText, effect] = options[answerIndex];
+  const intros = [
+    `这一天一开场，在${scene}这段你就选了“${answerText}”，说明你会${behaviorFromEffect(effect)}。`,
+    `到了${scene}这里，你更接近“${answerText}”这路数，这暴露出你做决定时会${behaviorFromEffect(effect)}。`,
+    `真正把你的底色写出来的是${scene}这一幕：你选择“${answerText}”，也就是会${behaviorFromEffect(effect)}。`,
+    `等剧情走到${scene}这一步，你心里的答案是“${answerText}”，所以你最后还是会${behaviorFromEffect(effect)}。`,
+  ];
+  return intros[offset % intros.length];
+}
+
+function answerWeightForDim(index, dim) {
+  const answerIndex = state.answers[index];
+  if (answerIndex === null) return -Infinity;
+  return Number(QUESTIONS[index][2][answerIndex][1][dim] || 0);
+}
+
+function pickQuestionIndex(candidates, dim, usedIndices, usedScenes) {
+  return [...candidates]
+    .sort((a, b) => answerWeightForDim(b, dim) - answerWeightForDim(a, dim) || a - b)
+    .find((index) => {
+      if (usedIndices.has(index)) return false;
+      const scene = QUESTIONS[index][0];
+      return !usedScenes.has(scene) || candidates.length === 1;
+    });
+}
+
+function buildRecap(scores) {
+  const sorted = sortedDimsFromScores(scores);
+  const usedIndices = new Set();
+  const usedScenes = new Set();
+  const chosen = [];
+
+  const pushIndex = (index) => {
+    if (index === undefined || index === null || usedIndices.has(index)) return;
+    usedIndices.add(index);
+    usedScenes.add(QUESTIONS[index][0]);
+    chosen.push(index);
+  };
+
+  pushIndex(pickQuestionIndex(DIM_RECAP_CANDIDATES[sorted[0]] || [], sorted[0], usedIndices, usedScenes));
+  pushIndex(pickQuestionIndex(DIM_RECAP_CANDIDATES[sorted[1]] || [], sorted[1], usedIndices, usedScenes));
+  pushIndex(pickQuestionIndex(DIM_RECAP_CANDIDATES[sorted[2]] || [], sorted[2], usedIndices, usedScenes));
+  pushIndex(pickQuestionIndex([21, 22, 23], sorted[0], usedIndices, usedScenes));
+
+  const ordered = chosen.sort((a, b) => a - b).slice(0, 4);
+  const sentences = ordered.map((index, offset) => recapSentenceForQuestion(index, offset));
+  return `${sentences.join("")} 所以你这一晚并不是在随机过剧情，你是在用${DIM_TONE[sorted[0]]}和${DIM_TONE[sorted[1]]}给自己找一种最像你的活法。`;
+}
+
+function buildQuest(scores) {
+  const weakest = sortedDimsFromScores(scores).at(-1);
+  const quests = {
+    MASK: "今晚允许自己说一句不那么圆滑、但更真实的话，不用先打三层补丁。",
+    SAFE: "今晚给自己一次可控的小冒险：换条路、发条主动消息，或者试一个平时不会选的小决定。",
+    SOCIAL: "今晚找一个你其实想联系的人，发一句不需要铺垫的话，哪怕只有八个字也算数。",
+    AVOID: "今晚把一件你已经拖了很久的小事定下开始时间，别再让‘之后再说’替你做决定。",
+    DRAMA: "今晚把一个正在上头的情绪写成两句具体事实，不给它配乐，只给它出口。",
+    DO: "今晚只做一件五分钟的小动作，把启动这件事重新练回身体里。",
+  };
+  return quests[weakest] || "今晚只做一件很小但确定能完成的事，让自己带着一点推进感收尾。";
 }
 
 function generateReport(scores) {
   const title = titleFromScores(scores);
   const subs = subtitlesFromScores(scores);
-  const verdict = "你不是没想法，你只是把“想法”先寄存在明天。";
+  const verdict = buildVerdict(scores);
 
   const talents = [];
   if (scores.SAFE >= 8) talents.push("你有风险雷达，遇事不会第一时间把自己送走。");
@@ -483,11 +635,8 @@ function generateReport(scores) {
     "当你开始玩笑变多，通常说明你在掩饰一点点不安。"
   ];
 
-  const quest = scores.DO >= 7
-    ? "今晚把一个拖了很久的小事做完，然后允许自己痛快休息。"
-    : "今晚只做一件5分钟小事：回一条消息、整理一个角落、发一个确认。做完就算赢。";
-
-  const recap = "从下水道醒来到天亮前收尾，你一路在‘体面、效率、情绪和安全感’之间做权衡。你不是没有勇气，而是太懂代价，所以总在冲动和克制之间拉扯。";
+  const quest = buildQuest(scores);
+  const recap = buildRecap(scores);
 
   return {
     title,
@@ -550,6 +699,157 @@ function renderIdentityPanel(report) {
       span.className = "identity-chip";
       span.textContent = subtitle;
       qs.resultSubtitles.appendChild(span);
+    });
+  }
+}
+
+function getDimensionPercentages(scores) {
+  return DIM_META.map((meta) => {
+    const value = Math.max(0, Number(scores[meta.key] || 0));
+    const max = Math.max(1, CHART_MAX_SCORES[meta.key] || 1);
+    const percent = Math.round((value / max) * 100);
+    return {
+      key: meta.key,
+      label: meta.label,
+      value,
+      percent,
+    };
+  }).sort((a, b) => b.percent - a.percent);
+}
+
+function dimensionLevel(percent) {
+  if (percent >= 78) return "极高";
+  if (percent >= 62) return "偏高";
+  if (percent >= 45) return "中段";
+  if (percent >= 28) return "偏低";
+  return "低位";
+}
+
+function dimensionSummary(key, rank) {
+  const summaries = {
+    MASK: [
+      "你会优先维护场面和体感，不想让自己显得失控。",
+      "你很在意表达分寸，出手前常会先修边。"
+    ],
+    SAFE: [
+      "你会先看风险，再决定要不要把自己投进去。",
+      "你对局面稳定度很敏感，不会轻易乱冲。"
+    ],
+    SOCIAL: [
+      "你会把关系气温一起算进选择里，存在感不低。",
+      "你很容易在群体里形成连接感，不太是纯单机型。"
+    ],
+    AVOID: [
+      "你做决定时很看重退路，不喜欢把自己逼死在现场。",
+      "你常常不是不想动，而是想先找到更安全的撤法。"
+    ],
+    DRAMA: [
+      "你的情绪和氛围感很在线，普通场景也容易被你读出戏。",
+      "你对感受细节特别敏锐，不太可能活成纯功能模式。"
+    ],
+    DO: [
+      "你有把事情推进去的冲劲，不喜欢永远停在想法阶段。",
+      "你一旦确认方向，通常会比别人更早动起来。"
+    ],
+  };
+  return summaries[key]?.[rank === 0 ? 0 : 1] || "这块在你身上很有存在感。";
+}
+
+function renderDimensionInsights(scores) {
+  const dimensions = getDimensionPercentages(scores);
+  const strongest = dimensions[0];
+  const second = dimensions[1];
+  const weakest = dimensions.at(-1);
+  const gap = Math.max(0, strongest.percent - weakest.percent);
+
+  if (qs.resultSpotlight) {
+    const cards = [
+      {
+        title: `最高维：${strongest.label}`,
+        value: `${strongest.percent}%`,
+        note: dimensionSummary(strongest.key, 0),
+        className: "spotlight-strong",
+      },
+      {
+        title: `第二高：${second.label}`,
+        value: `${second.percent}%`,
+        note: dimensionSummary(second.key, 1),
+        className: "spotlight-second",
+      },
+      {
+        title: "个体差值",
+        value: `${gap}pt`,
+        note: `你最强维度和最低维度拉开了 ${gap} 个点，对比感很明显。`,
+        className: "spotlight-gap",
+      },
+    ];
+
+    qs.resultSpotlight.innerHTML = "";
+    cards.forEach((card) => {
+      const article = document.createElement("article");
+      article.className = `spotlight-card ${card.className}`;
+      article.innerHTML = `
+        <span class="spotlight-title">${card.title}</span>
+        <strong>${card.value}</strong>
+        <p>${card.note}</p>
+      `;
+      qs.resultSpotlight.appendChild(article);
+    });
+  }
+
+  if (qs.resultContrast) {
+    const comparePairs = [
+      [dimensions[0], dimensions[3]],
+      [dimensions[1], dimensions[4] || dimensions[dimensions.length - 1]],
+      [dimensions[2], weakest],
+    ];
+
+    qs.resultContrast.innerHTML = "";
+    comparePairs.forEach(([left, right], index) => {
+      if (!left || !right) return;
+      const card = document.createElement("article");
+      card.className = "contrast-card";
+      card.innerHTML = `
+        <div class="contrast-top">
+          <span class="contrast-rank">0${index + 1}</span>
+          <span class="contrast-gap">${Math.max(0, left.percent - right.percent)}pt 差值</span>
+        </div>
+        <div class="contrast-main">
+          <div class="contrast-side is-strong">
+            <label>${left.label}</label>
+            <strong>${left.percent}%</strong>
+          </div>
+          <div class="contrast-vs">vs</div>
+          <div class="contrast-side is-weak">
+            <label>${right.label}</label>
+            <strong>${right.percent}%</strong>
+          </div>
+        </div>
+      `;
+      qs.resultContrast.appendChild(card);
+    });
+  }
+
+  if (qs.resultDimensionBars) {
+    qs.resultDimensionBars.innerHTML = "";
+    dimensions.forEach((dimension, index) => {
+      const row = document.createElement("div");
+      row.className = "dimension-row";
+      row.innerHTML = `
+        <div class="dimension-head">
+          <span class="dimension-rank">#${index + 1}</span>
+          <span class="dimension-name">${dimension.label}</span>
+          <span class="dimension-level">${dimensionLevel(dimension.percent)}</span>
+        </div>
+        <div class="dimension-track">
+          <span class="dimension-fill" style="width:${dimension.percent}%"></span>
+        </div>
+        <div class="dimension-foot">
+          <span>${dimensionSummary(dimension.key, index === 0 ? 0 : 1)}</span>
+          <strong>${dimension.percent}%</strong>
+        </div>
+      `;
+      qs.resultDimensionBars.appendChild(row);
     });
   }
 }
@@ -750,6 +1050,7 @@ function renderResult() {
   renderIdentityPanel(report);
   document.getElementById("result-verdict").textContent = report.verdict;
   renderRadarChart(scores);
+  renderDimensionInsights(scores);
   document.getElementById("result-recap").textContent = report.recap;
 
   const talentsEl = document.getElementById("result-talents");
